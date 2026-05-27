@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { 
   LayoutDashboard, 
@@ -12,10 +12,14 @@ import {
   GalleryHorizontalEnd,
   
 } from 'lucide-react';
+import { base_url } from '../components/utlis';
+import { getUser } from '../store/userSlice';
+import { useDispatch } from 'react-redux';
 
 const EmpLayout = () => {
    const location = useLocation();
 const navigation = useNavigate()
+const dispach = useDispatch()
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
   const navItems = [
@@ -29,6 +33,54 @@ const navigation = useNavigate()
   localStorage.clear("token");
 navigation("/")
 }
+
+const fetchUser= async(token)=>{
+    try {
+    const response = await fetch(`${base_url}/auth/user/verify`,{
+        method:"GET",
+         headers: {
+    Authorization: `Bearer ${token}`,
+  },
+    })    
+
+ const data  = await response.json();
+
+ if(data.success){
+
+navigation(`/${data.user.role}`)
+// dispach(getUser())
+
+ }else{
+navigation("/login")
+ }
+
+
+
+
+
+    
+    } catch (error) {
+       navigation("/login") 
+    }
+}
+
+ useEffect(()=>{
+const token =  localStorage.getItem("token")
+ 
+if(!token){
+navigation("/login")
+return 
+}
+
+
+fetchUser(token)
+
+
+
+    },[])
+
+
+
   return (
      <div className="flex h-screen bg-gray-100 overflow-hidden">
           

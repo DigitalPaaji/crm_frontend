@@ -14,14 +14,16 @@ import {
   Circle,
   ZodiacLeo
 } from 'lucide-react';
+import { base_url } from '../components/utlis';
+import { getUser } from '../store/userSlice';
+import { useDispatch } from 'react-redux';
 
 const AdminLayout = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [activeDropdown, setActiveDropdown] = useState(null);
-
+ const dispach = useDispatch()
   // Consolidated and corrected navigation items
   const navItems = [
     { 
@@ -51,10 +53,57 @@ const AdminLayout = () => {
         { name: "All Agencies", path: "/admin/agency/", icon: Users },
         { name: "All Leads", path: "/admin/agency/all-leads", icon: ZodiacLeo }
       ]
+  
     },
   ];
 
-  // Auto-open dropdown if a child link is active on initial load
+
+const fetchUser= async(token)=>{
+    try {
+    const response = await fetch(`${base_url}/auth/user/verify`,{
+        method:"GET",
+         headers: {
+    Authorization: `Bearer ${token}`,
+  },
+    })    
+
+ const data  = await response.json();
+
+ if(data.success){
+
+navigate(`/${data.user.role}`)
+// dispach(getUser())
+
+ }else{
+navigate("/login")
+ }
+
+
+
+
+
+    
+    } catch (error) {
+       navigation("/login") 
+    }
+}
+
+ useEffect(()=>{
+const token =  localStorage.getItem("token")
+ 
+if(!token){
+navigate("/login")
+return 
+}
+
+
+fetchUser(token)
+
+
+
+    },[])
+ 
+  
   useEffect(() => {
     navItems.forEach(item => {
       if (item.links?.some(link => location.pathname.includes(link.path))) {

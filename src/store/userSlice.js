@@ -23,7 +23,7 @@ export const getUser = createAsyncThunk(
       if (!response.ok) {
         return thunkAPI.rejectWithValue(data.message);
       }
-
+  
       return data.user;
     } catch (error) {
       return thunkAPI.rejectWithValue(

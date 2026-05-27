@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { useDispatch } from 'react-redux';
 import { getUser } from '../store/userSlice';
+import { base_url } from '../components/utlis';
 
 const AgencyLAyout = () => {
      const location = useLocation();
@@ -33,9 +34,49 @@ const dispatch = useDispatch()
 navigation("/")
 }
 
-useEffect(()=>{
-  dispatch(getUser())
-},[])
+
+const fetchUser= async(token)=>{
+    try {
+    const response = await fetch(`${base_url}/auth/user/verify`,{
+        method:"GET",
+         headers: {
+    Authorization: `Bearer ${token}`,
+  },
+    })    
+
+ const data  = await response.json();
+
+ if(data.success){
+
+navigation(`/${data.user.role}`)
+// dispach(getUser())
+
+ }else{
+navigation("/login")
+ }
+
+
+
+
+
+    
+    } catch (error) {
+       navigation("/login") 
+    }
+}
+
+ useEffect(()=>{
+const token =  localStorage.getItem("token")
+ 
+if(!token){
+navigation("/login")
+return 
+}
+
+fetchUser(token)
+
+ },[ ])
+
   return (
  <div className="flex h-screen bg-gray-100 overflow-hidden">
           

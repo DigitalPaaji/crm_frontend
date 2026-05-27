@@ -7,7 +7,7 @@ import { getUser } from '../store/userSlice'
 
 const HomePage = () => {
 const navigation = useNavigate()
-const dispach =useDispatch()
+const dispach =useDispatch() 
 
 const fetchUser= async(token)=>{
     try {

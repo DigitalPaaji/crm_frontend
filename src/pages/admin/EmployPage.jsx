@@ -53,7 +53,7 @@ const EmployPage = () => {
   const handelNewUser = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch(`${base_url}/auth/emp/create?role=agency`, {
+      const response = await fetch(`${base_url}/auth/emp/create?role=emp`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
