@@ -12,15 +12,19 @@ import {
   UserRoundPlus,
   CalendarCheck
 } from 'lucide-react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { getUser } from '../store/userSlice';
 import { base_url } from '../components/utlis';
+import GetImage from '../components/GetImage';
 
 const AgencyLAyout = () => {
      const location = useLocation();
 const navigation = useNavigate()
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 const dispatch = useDispatch()
+
+const {info,isLoading,isError}= useSelector(state=>state.user)
+
   const navItems = [
     { name: 'Dashboard', path: '/agency', icon: LayoutDashboard },
     { name: 'Create Leads', path: '/agency/create-leads', icon: GraduationCap },
@@ -35,47 +39,33 @@ navigation("/")
 }
 
 
-const fetchUser= async(token)=>{
-    try {
-    const response = await fetch(`${base_url}/auth/user/verify`,{
-        method:"GET",
-         headers: {
-    Authorization: `Bearer ${token}`,
-  },
-    })    
 
- const data  = await response.json();
-
- if(data.success){
-
-navigation(`/${data.user.role}`)
-// dispach(getUser())
-
- }else{
-navigation("/login")
- }
-
-
-
-
-
-    
-    } catch (error) {
-       navigation("/login") 
-    }
-}
-
- useEffect(()=>{
-const token =  localStorage.getItem("token")
+  useEffect(()=>{
  
-if(!token){
-navigation("/login")
-return 
+ dispatch(getUser())
+ 
+     },[])
+
+
+useEffect(()=>{
+if(info && info.role){
+
+  navigation(`/${info.role}`)
 }
 
-fetchUser(token)
 
- },[ ])
+
+},[info?.role])
+
+useEffect(()=>{
+
+  if(isError){
+  navigation("/login") 
+  }
+
+
+},[isError])
+
 
   return (
  <div className="flex h-screen bg-gray-100 overflow-hidden">
@@ -90,13 +80,27 @@ fetchUser(token)
             {/* Sidebar Header */}
             <div className="h-16 flex items-center justify-center border-b border-gray-800 transition-all duration-300">
               {isSidebarOpen ? (
-                <h2 className="text-xl font-bold text-white tracking-wide whitespace-nowrap">
-                  Agency Panel
+
+<>
+   {info?.profile ? <GetImage profile={info.profile } heigth={"h-12"} />  : ""
+              
+}
+
+ <h2 className="text-xl font-bold text-white tracking-wide whitespace-nowrap">
+               {info?.name}
                 </h2>
-              ) : (
-                <h2 className="text-xl font-bold text-blue-500 tracking-wide">
+</>
+
+               
+              ) : (<> {info?.profile ? <GetImage profile={info.profile } heigth={"h-12"} />  :<h2 className="text-xl font-bold text-blue-500 tracking-wide">
                   AP
                 </h2>
+              
+}
+
+
+</>
+                
               )}
             </div>
     
@@ -141,7 +145,7 @@ fetchUser(token)
                 {isSidebarOpen && <span className="font-medium whitespace-nowrap">Ai Mode</span>}
               </Link>
                 <Link 
-                to="/admin/settings" 
+                to="/agency/settings" 
                 title={!isSidebarOpen ? "Settings" : ""}
                 className={`flex items-center rounded-lg hover:bg-gray-800 hover:text-white transition-colors ${
                   isSidebarOpen ? 'gap-3 px-4 py-2' : 'justify-center py-2 px-0'

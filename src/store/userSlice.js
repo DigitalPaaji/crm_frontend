@@ -6,7 +6,10 @@ export const getUser = createAsyncThunk(
   "user/get",
   async (_, thunkAPI) => {
     try {
-      const token = localStorage.getItem("token") || "";
+      const token = localStorage.getItem("token");
+if(!token){
+  thunkAPI.rejectWithValue("token not found");
+}
 
       const response = await fetch(
         `${base_url}/auth/user/verify`,
@@ -23,7 +26,7 @@ export const getUser = createAsyncThunk(
       if (!response.ok) {
         return thunkAPI.rejectWithValue(data.message);
       }
-  
+
       return data.user;
     } catch (error) {
       return thunkAPI.rejectWithValue(
@@ -36,21 +39,35 @@ export const getUser = createAsyncThunk(
 const initialState = {
   info: null,
   isLoading: false,
-  isError: "",
+  isError: false,
 };
 const userSlice = createSlice({
   name: "user",
   initialState,
 
-  reducers: {},
+ 
 
-  extraReducers: (builder) => {
+
+
+  reducers:{
+  addProfile: (state, action) => {
+    
+    state.info = {
+      ...state.info,
+      profile: action.payload,
+    };
+  },
+
+  }
+,
+
+    extraReducers: (builder) => {
     builder
 
       // Pending
       .addCase(getUser.pending, (state) => {
         state.isLoading = true;
-        state.isError = "";
+        state.isError =false;
       })
 
       // Success
@@ -62,10 +79,11 @@ const userSlice = createSlice({
       // Error
       .addCase(getUser.rejected, (state, action) => {
         state.isLoading = false;
-        state.isError =
-          action.payload;
+        state.isError =true
       });
   },
 });
 
+
+export const {addProfile} = userSlice.actions;
 export default userSlice.reducer;

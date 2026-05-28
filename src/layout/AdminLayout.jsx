@@ -16,7 +16,8 @@ import {
 } from 'lucide-react';
 import { base_url } from '../components/utlis';
 import { getUser } from '../store/userSlice';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import GetImage from '../components/GetImage';
 
 const AdminLayout = () => {
   const location = useLocation();
@@ -24,7 +25,10 @@ const AdminLayout = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [activeDropdown, setActiveDropdown] = useState(null);
  const dispach = useDispatch()
-  // Consolidated and corrected navigation items
+ 
+const {info,isLoading,isError}= useSelector(state=>state.user)
+console.log(info,isLoading,isError)
+
   const navItems = [
     { 
       name: 'Dashboard', 
@@ -58,50 +62,44 @@ const AdminLayout = () => {
   ];
 
 
-const fetchUser= async(token)=>{
-    try {
-    const response = await fetch(`${base_url}/auth/user/verify`,{
-        method:"GET",
-         headers: {
-    Authorization: `Bearer ${token}`,
-  },
-    })    
+// const fetchUser= async(token)=>{
+//     try {
+//     const response = await fetch(`${base_url}/auth/user/verify`,{
+//         method:"GET",
+//          headers: {
+//     Authorization: `Bearer ${token}`,
+//   },
+//     })    
 
- const data  = await response.json();
+//  const data  = await response.json();
 
- if(data.success){
+//  if(data.success){
 
-navigate(`/${data.user.role}`)
-// dispach(getUser())
+// navigate(`/${data.user.role}`)
+// // dispach(getUser())
 
- }else{
-navigate("/login")
- }
+//  }else{
+// navigate("/login")
+//  }
 
 
 
 
 
     
-    } catch (error) {
-       navigation("/login") 
-    }
-}
+//     } catch (error) {
+//        navigation("/login") 
+//     }
+// }
 
  useEffect(()=>{
-const token =  localStorage.getItem("token")
- 
-if(!token){
-navigate("/login")
-return 
+
+dispach(getUser())
+if(info && info.role){
+
+  navigate(`/${info.role}`)
 }
-
-
-fetchUser(token)
-
-
-
-    },[])
+    },[ ])
  
   
   useEffect(() => {
@@ -127,6 +125,28 @@ fetchUser(token)
     setActiveDropdown(prev => prev === itemName ? null : itemName);
   };
 
+
+
+useEffect(()=>{
+
+if(info && info.role){
+
+  navigate(`/${info.role}`)
+}
+
+
+},[info?.role])
+
+useEffect(()=>{
+
+  if(isError){
+  navigate("/login") 
+  }
+
+
+},[isError])
+
+
   return (
     <div className="flex h-screen bg-gray-50 overflow-hidden font-sans">
       
@@ -141,15 +161,20 @@ fetchUser(token)
         <div className="h-16 flex items-center justify-center border-b border-slate-800 transition-all duration-300">
           {isSidebarOpen ? (
             <h2 className="text-xl font-bold text-white tracking-wide whitespace-nowrap flex items-center gap-2">
-              <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+              {info?.profile ? <GetImage profile={info.profile } heigth={"h-12"} />  :  <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+              
+             
                 <span className="text-white text-sm">AP</span>
               </div>
+}
               Admin Panel
             </h2>
           ) : (
+            <>   {info?.profile ? <GetImage profile={info.profile } heigth={"h-12"} />  :
             <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center shadow-lg">
               <span className="text-white font-bold text-lg">AP</span>
-            </div>
+            </div>}
+            </>
           )}
         </div>
 
@@ -228,7 +253,7 @@ fetchUser(token)
                       {item.links.map((subLink) => {
                         const SubIcon = subLink.icon || Circle;
                         const isSubActive = location.pathname==subLink.path;
-                        console.log({pathname:location.pathname ,mylink:subLink.path})
+              
                         return (
                           <Link 
                             key={subLink.name} 

@@ -74,16 +74,25 @@ const AgencyPage = () => {
   };
 
   // Generate Password
-  const generatePassword = () => {
-    const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+~`|}{[]:;?><,./-=";
-    let password = "";
-    for (let i = 0; i < 12; i++) {
-      const randomNumber = Math.floor(Math.random() * chars.length);
-      password += chars.substring(randomNumber, randomNumber + 1);
-    }
-    setNewUser(prev => ({ ...prev, password: password }));
-    setShowPassword(true);
-  };
+ const generatePassword = () => {
+  const chars =
+    "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+
+  let password = "";
+
+  for (let i = 0; i < 12; i++) {
+    const randomNumber = Math.floor(Math.random() * chars.length);
+
+    password += chars[randomNumber];
+  }
+
+  setNewUser((prev) => ({
+    ...prev,
+    password,
+  }));
+
+  setShowPassword(true);
+};
 
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString('en-US', {

@@ -452,7 +452,7 @@ if(deleteID){
                   {leadMeta.followup.map((f, index) => (
                     <div key={index} className="flex justify-between items-center bg-white p-2 rounded border border-blue-100 text-sm">
                       <span className="text-gray-700">{new Date(f.date).toLocaleTimeString()} {new Date(f.date).toLocaleDateString()}</span>
-                      <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">{ f.by.name}</span>
+                      <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">{ f?.by?.name}</span>
 
 
 

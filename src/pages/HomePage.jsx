@@ -4,10 +4,11 @@ import { useNavigate } from 'react-router-dom'
 import { base_url } from '../components/utlis'
 import { useDispatch } from 'react-redux'
 import { getUser } from '../store/userSlice'
+import { setToken } from '../store/TokenSlice'
 
 const HomePage = () => {
 const navigation = useNavigate()
-const dispach =useDispatch() 
+const dispach =useDispatch()
 
 const fetchUser= async(token)=>{
     try {
@@ -22,8 +23,8 @@ const fetchUser= async(token)=>{
 
  if(data.success){
 
-navigation(`/${data.user.role}`)
-dispach(getUser())
+ await navigation(`/${data.user.role}`)
+// dispach(getUser())
 
  }else{
 navigation("/login")
@@ -48,7 +49,7 @@ navigation("/login")
 return 
 }
 
-
+dispach(setToken(token))
 fetchUser(token)
 
 

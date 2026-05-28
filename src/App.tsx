@@ -39,6 +39,11 @@ import AllLeads from "./pages/agency/AllLeads"
 import MyLeads from "./pages/agency/MyLeads"
 import LeadPage from "./pages/agency/LeadPage"
 import FollowUp from "./pages/agency/FollowUp"
+import SettingPage from "./pages/agency/SettingPage"
+
+
+
+
 import TaskPage from "./pages/TaskPage"
 function App(): React.JSX.Element {
 
@@ -66,6 +71,7 @@ transition={Slide}
  <Route path="/" element={<HomePage />} />
    <Route path="/admin" element={<AdminLayout />}>
         <Route index element={<AdminHomePage />} />
+        <Route path="settings" element={<SettingPage />} />
         {/* <Route path="student" element={<StudentPage />} />*/}
         
 
@@ -87,6 +93,9 @@ transition={Slide}
 
 
 <Route path="/emp" element={<EmpLayout />}>
+<Route path="settings" element={<SettingPage />} />
+
+
 <Route   path="insta/create"  element={<CreateIntaPage />}   />
 <Route   path="insta/all"  element={<AllInstaAcc />}   />
 <Route   path="insta/page/:id" element={<InstaPage />}    >
@@ -117,7 +126,8 @@ transition={Slide}
       <Route path="tasks" element={<TaskPage />} />
       <Route path="my-leads" element={<MyLeads />} />
       <Route path="lead/:leadid" element={<LeadPage />} />
-  
+      <Route path="settings" element={<SettingPage />} />
+      
 
       </Route>
 

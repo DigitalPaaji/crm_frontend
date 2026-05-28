@@ -72,7 +72,7 @@ email,password
   if(data.success){
      localStorage.setItem("token",data.token)
 toast.success(data.message)
-  window.location.href="/"
+ navigation("/");
 }else{
     toast.error(data.message)
 
