@@ -10,7 +10,8 @@ import {
   BrainCircuit,
   NotebookPen,
   UserRoundPlus,
-  CalendarCheck
+  CalendarCheck,
+  MessagesSquare
 } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
 import { getUser } from '../store/userSlice';
@@ -32,6 +33,7 @@ const {info,isLoading,isError}= useSelector(state=>state.user)
     { name: 'All Leads', path:'/agency/all-leads', icon: Briefcase },
     { name: 'Follow Up', path:'/agency/follow-up', icon: UserRoundPlus },
     { name: 'My Tasks', path:'/agency/tasks', icon: CalendarCheck },
+    { name: 'Message', path:'/agency/message', icon: MessagesSquare },
   ];
   const handelLogout = async()=>{
   localStorage.clear("token");
@@ -78,7 +80,7 @@ useEffect(()=>{
           >
             
             {/* Sidebar Header */}
-            <div className="h-16 flex items-center justify-center border-b border-gray-800 transition-all duration-300">
+            <div className="h-16 flex items-center px-5 gap-3 border-b border-gray-800 transition-all duration-300">
               {isSidebarOpen ? (
 
 <>

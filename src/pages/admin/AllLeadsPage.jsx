@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
+import { base_url } from '../../components/utlis';
 import { 
   Users, 
   Phone, 
@@ -13,30 +14,36 @@ import {
   Filter,
   Eye,
   Edit,
-  Trash2
+  Trash2,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 import Loader from '../../components/Loader';
 import { Link } from 'react-router-dom';
-import { base_url } from '../../components/utlis';
 
 const AllLeadsPage = () => {
   const { token } = useSelector((state) => state.token);
   
-  // State management
   const [leads, setLeads] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
- 
-
+  
+  // Search and Filter state
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
 
-  const fetchMyLeads = async () => {
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalLeads, setTotalLeads] = useState(0);
+
+  const fetchMyLeads = async (page = 1) => {
     try {
       setLoading(true);
       setError(null);
       
-      const response = await fetch(`${base_url}/leads/admin/get-all-leads`, {
+      // Pass the page parameter to your API
+      const response = await fetch(`${base_url}/leads/admin/get-all-leads?page=${page}`, {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,  
@@ -51,6 +58,10 @@ const AllLeadsPage = () => {
       
       if (data.success) {
         setLeads(data.leads);
+        // Update pagination states from the API response
+        setCurrentPage(data.page || 1);
+        setTotalPages(data.totalPages || 1);
+        setTotalLeads(data.totalLeads || 0);
       } else {
         throw new Error(data.message || 'Error loading leads');
       }
@@ -61,14 +72,11 @@ const AllLeadsPage = () => {
     }
   };
 
+  // Re-fetch when page changes
   useEffect(() => {
-    fetchMyLeads();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    fetchMyLeads(currentPage);
+  }, [currentPage]);
 
-
-
-  // Helper function to format status badge colors
   const getStatusColor = (status) => {
     switch (status?.toLowerCase()) {
       case 'new':
@@ -82,7 +90,8 @@ const AllLeadsPage = () => {
     }
   };
 
-  // Filter leads based on search term and status
+  // Note: Client-side filtering only applies to the current page's data.
+  // If your backend supports searching/filtering, pass them in the fetch URL instead.
   const filteredLeads = leads.filter((lead) => {
     const matchesSearch = 
       (lead.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -94,14 +103,21 @@ const AllLeadsPage = () => {
     return matchesSearch && matchesStatus;
   });
 
+  // Pagination Handlers
+  const handlePrevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage((prev) => prev - 1);
+    }
+  };
 
+  const handleNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage((prev) => prev + 1);
+    }
+  };
 
-
-
-  if (loading) {
-    return (
-      <Loader />
-    );
+  if (loading && leads.length === 0) {
+    return <Loader />;
   }
 
   if (error) {
@@ -111,7 +127,7 @@ const AllLeadsPage = () => {
         <p className="text-lg font-semibold">Oops! Something went wrong.</p>
         <p className="text-sm">{error}</p>
         <button 
-          onClick={fetchMyLeads}
+          onClick={() => fetchMyLeads(currentPage)}
           className="mt-4 px-4 py-2 bg-red-50 text-red-600 rounded-md hover:bg-red-100 transition-colors"
         >
           Try Again
@@ -119,8 +135,6 @@ const AllLeadsPage = () => {
       </div>
     );
   }
-
-
 
   return (
     <div className="p-6 max-w-7xl mx-auto space-y-6">
@@ -137,7 +151,7 @@ const AllLeadsPage = () => {
         </div>
         <div className="px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg shadow-sm">
           <span className="text-sm font-medium text-gray-600">
-            Total: <span className="text-gray-900">{filteredLeads.length}</span>
+            Total Leads: <span className="text-gray-900">{totalLeads}</span>
           </span>
         </div>
       </div>
@@ -151,7 +165,7 @@ const AllLeadsPage = () => {
           </div>
           <input
             type="text"
-            placeholder="Search by name, email, or phone..."
+            placeholder="Search by name, email, or phone (current page)..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 text-sm"
@@ -176,7 +190,7 @@ const AllLeadsPage = () => {
         </div>
       </div>
 
-      {/* Leads Table */}
+      {/* Leads Table & Pagination Container */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
@@ -191,7 +205,16 @@ const AllLeadsPage = () => {
                 <th className="px-6 py-4 text-sm font-semibold text-gray-600 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-200">
+            <tbody className="divide-y divide-gray-200 relative">
+              {loading && (
+                <tr>
+                  <td colSpan="7">
+                    <div className="absolute inset-0 bg-white/60 flex items-center justify-center z-10">
+                      <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
+                    </div>
+                  </td>
+                </tr>
+              )}
               {filteredLeads.length > 0 ? (
                 filteredLeads.map((lead) => (
                   <tr key={lead._id} className="hover:bg-gray-50 transition-colors">
@@ -254,16 +277,9 @@ const AllLeadsPage = () => {
                     {/* Actions */}
                     <td className="px-6 py-4 text-right">
                       <div className="flex items-center justify-end gap-2">
-                        <Link to={`/admin/agency/lead/${lead._id}`}  className="p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors" title="View Lead">
+                        <Link to={`/admin/agency/lead/${lead._id}`} className="p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors" title="View Lead">
                           <Eye className="w-4 h-4" />
                         </Link>
-                     
-                        {/* <button className="p-1.5 text-gray-500 hover:text-green-600 hover:bg-green-50 rounded-md transition-colors" title="Edit Lead">
-                          <Edit className="w-4 h-4" />
-                        </button>
-                        <button className="p-1.5 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors" title="Delete Lead">
-                          <Trash2 className="w-4 h-4" />
-                        </button> */}
                       </div>
                     </td>
                   </tr>
@@ -286,6 +302,81 @@ const AllLeadsPage = () => {
             </tbody>
           </table>
         </div>
+
+        {/* Pagination Controls */}
+        {totalPages > 0 && (
+          <div className="flex items-center justify-between px-6 py-4 border-t border-gray-200 bg-gray-50">
+            <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
+              <div>
+                <p className="text-sm text-gray-700">
+                  Showing page <span className="font-medium text-gray-900">{currentPage}</span> of{' '}
+                  <span className="font-medium text-gray-900">{totalPages}</span>
+                </p>
+              </div>
+              
+              <div>
+                <nav className="inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
+                  <button
+                    onClick={handlePrevPage}
+                    disabled={currentPage === 1 || loading}
+                    className={`relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium ${
+                      currentPage === 1 || loading
+                        ? 'text-gray-300 cursor-not-allowed'
+                        : 'text-gray-500 hover:bg-gray-50 hover:text-gray-700'
+                    }`}
+                  >
+                    <span className="sr-only">Previous</span>
+                    <ChevronLeft className="h-5 w-5" aria-hidden="true" />
+                  </button>
+                  
+                  {/* Quick Page Indicator for middle */}
+                  <span className="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700">
+                    {currentPage} / {totalPages}
+                  </span>
+
+                  <button
+                    onClick={handleNextPage}
+                    disabled={currentPage === totalPages || loading}
+                    className={`relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium ${
+                      currentPage === totalPages || loading
+                        ? 'text-gray-300 cursor-not-allowed'
+                        : 'text-gray-500 hover:bg-gray-50 hover:text-gray-700'
+                    }`}
+                  >
+                    <span className="sr-only">Next</span>
+                    <ChevronRight className="h-5 w-5" aria-hidden="true" />
+                  </button>
+                </nav>
+              </div>
+            </div>
+
+            {/* Mobile simplified pagination */}
+            <div className="flex flex-1 justify-between sm:hidden">
+              <button
+                onClick={handlePrevPage}
+                disabled={currentPage === 1 || loading}
+                className={`relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md ${
+                  currentPage === 1 || loading
+                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                    : 'bg-white text-gray-700 hover:bg-gray-50'
+                }`}
+              >
+                Previous
+              </button>
+              <button
+                onClick={handleNextPage}
+                disabled={currentPage === totalPages || loading}
+                className={`relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md ${
+                  currentPage === totalPages || loading
+                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                    : 'bg-white text-gray-700 hover:bg-gray-50'
+                }`}
+              >
+                Next
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

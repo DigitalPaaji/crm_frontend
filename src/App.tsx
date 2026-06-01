@@ -40,9 +40,11 @@ import MyLeads from "./pages/agency/MyLeads"
 import LeadPage from "./pages/agency/LeadPage"
 import FollowUp from "./pages/agency/FollowUp"
 import SettingPage from "./pages/agency/SettingPage"
+import MessagePage from "./pages/MessagePage"
 
 
-
+import DefaultMessage from "./components/DefaultMessage"
+import MessageCompo from "./components/MessageCompo"
 
 import TaskPage from "./pages/TaskPage"
 function App(): React.JSX.Element {
@@ -71,6 +73,15 @@ transition={Slide}
  <Route path="/" element={<HomePage />} />
    <Route path="/admin" element={<AdminLayout />}>
         <Route index element={<AdminHomePage />} />
+ <Route path="message" element={<MessagePage />} >
+   
+<Route index  element={<DefaultMessage />} />
+<Route path=":chatid" element={<MessageCompo />}  />
+
+
+
+ </Route>
+
         <Route path="settings" element={<SettingPage />} />
         {/* <Route path="student" element={<StudentPage />} />*/}
         
@@ -83,7 +94,7 @@ transition={Slide}
      <Route index element={<AgencyPage />} />
      <Route path="all-leads" element={<AllLeadsPage />} />
      <Route path="lead/:leadid" element={<AdminLeadPage />} />
-    
+   
         </Route> 
                                                         
   
@@ -110,6 +121,12 @@ transition={Slide}
 
 
 </Route>
+   <Route path="message" element={<MessagePage />} >
+<Route index  element={<DefaultMessage />} />
+<Route path=":chatid" element={<MessageCompo />}  />
+
+
+      </Route>
 
         {/* <Route index element={<AdminHomePage />} /> */}
         {/* <Route path="student" element={<StudentPage />} />*/}
@@ -127,6 +144,12 @@ transition={Slide}
       <Route path="my-leads" element={<MyLeads />} />
       <Route path="lead/:leadid" element={<LeadPage />} />
       <Route path="settings" element={<SettingPage />} />
+      <Route path="message" element={<MessagePage />} >
+<Route index  element={<DefaultMessage />} />
+<Route path=":chatid" element={<MessageCompo />}  />
+
+
+      </Route>
       
 
       </Route>

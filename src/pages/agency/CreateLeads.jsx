@@ -2,17 +2,22 @@ import React, { useState } from 'react';
 import { 
   User, Mail, Phone, Calendar, Users, 
   MapPin, Briefcase, GraduationCap, Link2, 
-  FileText, Save ,Plus, Eye, X 
+  FileText, Save ,Plus, Eye, X, 
+  FileSpreadsheet,
+  UploadCloud
 } from 'lucide-react';
 
 import { useSelector } from 'react-redux';
 import { base_url } from '../../components/utlis';
 import { toast } from 'react-toastify';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const CreateLeads = () => {
      const { token } = useSelector(state => state.token);
      const [showPopUp,setShowPopUp]=useState(false)
+     const [uploadXl,setUploadXl] =useState(false)
+     const [selectedFile, setSelectedFile] = useState(null);
+    
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -73,6 +78,58 @@ toast.error(data.message)
    }
   };
 
+
+
+
+
+  const handleFileChange = (e) => {
+    if (e.target.files && e.target.files.length > 0) {
+      setSelectedFile(e.target.files[0]);
+    }
+  };
+
+  const handleUpload = async() => {
+    if (!selectedFile) return;
+   
+  try {
+    const newformData  = new FormData()
+      newformData.append("file",selectedFile)
+     
+      const resposne = await fetch(`${base_url}/leads/create/xl`,{
+        method:"POST",
+  headers:{
+    Authorization: `Bearer ${token}`,
+  },
+  body:newformData
+
+      })
+    
+      const data = await resposne.json();
+
+      
+
+if(data.success){
+  toast.success(data.message)
+  setShowPopUp(true)
+  setUploadXl(false); 
+  setSelectedFile(null)
+}
+else{
+  toast.error(data.message)
+}
+
+
+
+
+} catch (error) {
+    toast.error(error.response.data.message)
+  
+  }
+
+
+
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8 relative">
       {showPopUp && <div className="fixed inset-0 z-50 flex items-center justify-center w-full h-full p-4 bg-gray-900/50 backdrop-blur-sm">
@@ -123,11 +180,106 @@ toast.error(data.message)
       
     </div>
   </div>}
+
+ {uploadXl && 
+ <div className="fixed inset-0 z-50 flex items-center justify-center w-full h-full p-4 bg-gray-900/50 backdrop-blur-sm">
+      {/* Popup Container */}
+      <div className="relative w-full max-w-sm bg-white rounded-2xl shadow-2xl overflow-hidden">
+        
+        {/* Close Button */}
+        <button
+          onClick={() => setUploadXl(false)}
+          className="absolute top-4 right-4 p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+        >
+          <X className="w-5 h-5" />
+        </button>
+
+        {/* Content */}
+        <div className="p-6 text-center">
+          <div className="w-12 h-12 mx-auto mb-4 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center">
+            <FileSpreadsheet className="w-6 h-6" />
+          </div>
+
+          <h3 className="text-xl font-bold text-gray-900 mb-2">
+            Upload Excel File
+          </h3>
+          <p className="text-sm text-gray-500 mb-6">
+            Please upload your .xlsx or .csv file below.
+          </p>
+
+          {/* Upload Area */}
+          <div className="mb-6">
+            <label
+              htmlFor="xl"
+              className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-xl cursor-pointer bg-gray-50 hover:bg-blue-50 hover:border-blue-400 transition-colors"
+            >
+              <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                <UploadCloud className="w-8 h-8 text-gray-400 mb-2" />
+                {selectedFile ? (
+                  <p className="text-sm font-medium text-blue-600 truncate max-w-[200px]">
+                    {selectedFile.name}
+                  </p>
+                ) : (
+                  <>
+                    <p className="mb-1 text-sm text-gray-500">
+                      <span className="font-semibold text-blue-600">Click to upload</span> or drag and drop
+                    </p>
+                    <p className="text-xs text-gray-500">XLSX, XLS, or CSV</p>
+                  </>
+                )}
+              </div>
+              <input
+                id="xl"
+                type="file"
+                className="hidden"
+                accept=".xlsx, .xls, .csv"
+                onChange={handleFileChange}
+              />
+            </label>
+          </div>
+
+          {/* Buttons */}
+          <div className="flex gap-3 w-full">
+            <button
+              onClick={() => setUploadXl(false)}
+              className="flex-1 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleUpload}
+              disabled={!selectedFile}
+              className={`flex-1 px-4 py-2 text-sm font-medium text-white rounded-lg transition-colors ${
+                selectedFile
+                  ? 'bg-blue-600 hover:bg-blue-700'
+                  : 'bg-blue-300 cursor-not-allowed'
+              }`}
+            >
+              Upload
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+ 
+ }
+
+
+
+
+
+
       <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
         
-        <div className="mb-8 border-b border-gray-100 pb-5">
+        <div className="mb-8 border-b border-gray-100 pb-5 flex justify-between items-center">
+        <div>
           <h2 className="text-2xl font-semibold text-gray-800">Create New Lead</h2>
           <p className="text-sm text-gray-500 mt-1">Enter the details below to add a new lead to the system.</p>
+          </div>
+<div>
+  <button onClick={()=>setUploadXl(true)} className='bg-blue-700/90 cursor-pointer text-white font-medium px-3 py-2 rounded-2xl'>Upload xlsheet</button>
+</div>
+
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">

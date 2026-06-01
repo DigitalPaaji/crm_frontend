@@ -130,7 +130,7 @@ if(data.success){
   toast.error(data.message)
   
 }
-     console.log(data)
+    
     } catch(err) { 
     
      }
@@ -167,7 +167,7 @@ if(data.success){
   toast.error(data.message)
   
 }
-     console.log(data)
+    
     } catch(err) { 
     
      }

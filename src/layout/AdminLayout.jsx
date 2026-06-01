@@ -12,7 +12,8 @@ import {
   Users,
   ChevronDown,
   Circle,
-  ZodiacLeo
+  ZodiacLeo,
+  MessagesSquare
 } from 'lucide-react';
 import { base_url } from '../components/utlis';
 import { getUser } from '../store/userSlice';
@@ -27,7 +28,7 @@ const AdminLayout = () => {
  const dispach = useDispatch()
  
 const {info,isLoading,isError}= useSelector(state=>state.user)
-console.log(info,isLoading,isError)
+
 
   const navItems = [
     { 
@@ -59,6 +60,8 @@ console.log(info,isLoading,isError)
       ]
   
     },
+  { name: 'Message', path:'/admin/message', icon: MessagesSquare },
+
   ];
 
 
@@ -158,7 +161,7 @@ useEffect(()=>{
       >
         
         {/* Sidebar Header */}
-        <div className="h-16 flex items-center justify-center border-b border-slate-800 transition-all duration-300">
+        <div className="h-16 flex items-center px-5 gap-3 border-b border-slate-800 transition-all duration-300">
           {isSidebarOpen ? (
             <h2 className="text-xl font-bold text-white tracking-wide whitespace-nowrap flex items-center gap-2">
               {info?.profile ? <GetImage profile={info.profile } heigth={"h-12"} />  :  <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
@@ -339,8 +342,8 @@ useEffect(()=>{
         </header>
         
         {/* Page Content */}
-        <main className="flex-1 h-full overflow-x-hidden overflow-y-auto bg-slate-50 p-6">
-          <div className="max-w-7xl mx-auto">
+        <main className="flex-1 h-full overflow-x-hidden overflow-y-auto bg-slate-50">
+          <div className=" mx-auto h-full">
             <Outlet />
           </div>
         </main>

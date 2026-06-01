@@ -121,7 +121,7 @@ const fetchSearch = async(info)=>{
     })
 
 // const data = await response.json();
-console.log(response,accountId,info)
+
 
 
   } catch (error) {

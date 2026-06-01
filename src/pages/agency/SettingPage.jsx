@@ -30,7 +30,7 @@ const SettingPage = () => {
   const dispatch = useDispatch();
   const { info, isError, isLoading } = useSelector((state) => state.user);
   const { token } = useSelector((state) => state.token);
-  console.log(info)
+
   const [profile,setProfile]=useState(0)
   const route = useNavigate()
 

@@ -10,6 +10,7 @@ import {
   BrainCircuit,
   CircleFadingPlus,
   GalleryHorizontalEnd,
+  MessagesSquare,
   
 } from 'lucide-react';
 import { base_url } from '../components/utlis';
@@ -28,7 +29,7 @@ const {info,isLoading,isError}= useSelector(state=>state.user)
     { name: 'Students', path: '/emp/student', icon: GraduationCap },
     { name: 'Create Instagram', path: '/emp/insta/create', icon:CircleFadingPlus },
     { name: 'All Instagram', path: '/emp/insta/all', icon:GalleryHorizontalEnd },
-    // { name: 'Employees', path: '/admin/employee', icon: Briefcase },
+      { name: 'Message', path:'/emp/message', icon: MessagesSquare },
   ];
   const handelLogout = async()=>{
   localStorage.clear("token");
@@ -79,7 +80,7 @@ useEffect(()=>{
           >
             
             {/* Sidebar Header */}
-            <div className="h-16 flex items-center justify-center border-b border-gray-800 transition-all duration-300">
+            <div className="h-16 flex items-center px-5 gap-3 border-b border-gray-800 transition-all duration-300">
               {isSidebarOpen ? (
                 <>
    {info?.profile ? <GetImage profile={info.profile } heigth={"h-12"} />  : ""
