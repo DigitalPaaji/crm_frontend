@@ -71,8 +71,8 @@ transition={Slide}
    <HashRouter>
 
 <Routes>
- <Route path="/login" element={<Loginpage />} />
  <Route path="/meet/:roomid" element={<Meetingpage />} />
+ <Route path="/login" element={<Loginpage />} />
 
 
  <Route path="/" element={<HomePage />} />
