@@ -11,7 +11,8 @@ import {
   NotebookPen,
   UserRoundPlus,
   CalendarCheck,
-  MessagesSquare
+  MessagesSquare,
+  Projector
 } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
 import { getUser } from '../store/userSlice';
@@ -34,6 +35,7 @@ const {info,isLoading,isError}= useSelector(state=>state.user)
     { name: 'Follow Up', path:'/agency/follow-up', icon: UserRoundPlus },
     { name: 'My Tasks', path:'/agency/tasks', icon: CalendarCheck },
     { name: 'Message', path:'/agency/message', icon: MessagesSquare },
+    { name: 'Meet', path:'/agency/createmeet', icon: Projector },
   ];
   const handelLogout = async()=>{
   localStorage.clear("token");
@@ -107,7 +109,7 @@ useEffect(()=>{
             </div>
     
             {/* Navigation */}
-            <nav className="flex-1 px-3 py-6 space-y-2 overflow-y-auto overflow-x-hidden">
+            <nav className="flex-1 px-3 py-6 space-y-2 overflow-y-auto overflow-x-hidden hide-scrollbar">
               {navItems.map((item) => {
                 const Icon = item.icon;
                 const isActive = location.pathname === item.path;

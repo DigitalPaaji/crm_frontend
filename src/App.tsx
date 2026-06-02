@@ -41,6 +41,8 @@ import LeadPage from "./pages/agency/LeadPage"
 import FollowUp from "./pages/agency/FollowUp"
 import SettingPage from "./pages/agency/SettingPage"
 import MessagePage from "./pages/MessagePage"
+import Createmeet from "./pages/Createmeet"
+import Meetingpage from "./pages/Meetingpage"
 
 
 import DefaultMessage from "./components/DefaultMessage"
@@ -70,6 +72,9 @@ transition={Slide}
 
 <Routes>
  <Route path="/login" element={<Loginpage />} />
+ <Route path="/meet/:roomid" element={<Meetingpage />} />
+
+
  <Route path="/" element={<HomePage />} />
    <Route path="/admin" element={<AdminLayout />}>
         <Route index element={<AdminHomePage />} />
@@ -137,17 +142,19 @@ transition={Slide}
         {/* <Route index element={<AdminHomePage />} /> */}
         {/* <Route path="student" element={<StudentPage />} />*/}
         
-        <Route path="create-leads" element={<CreateLeads />} /> 
+      <Route path="create-leads" element={<CreateLeads />} /> 
       <Route path="all-leads" element={<AllLeads />} />
       <Route path="follow-up" element={<FollowUp />} />
       <Route path="tasks" element={<TaskPage />} />
       <Route path="my-leads" element={<MyLeads />} />
       <Route path="lead/:leadid" element={<LeadPage />} />
       <Route path="settings" element={<SettingPage />} />
-      <Route path="message" element={<MessagePage />} >
-<Route index  element={<DefaultMessage />} />
-<Route path=":chatid" element={<MessageCompo />}  />
+      <Route path="createmeet"  element={<Createmeet />}  />
 
+      
+      <Route path="message" element={<MessagePage />} >
+      <Route index  element={<DefaultMessage />} />
+      <Route path=":chatid" element={<MessageCompo />}  />
 
       </Route>
       
@@ -160,6 +167,10 @@ transition={Slide}
 
 <Route path="text-image" element={<Imagegeneration />} />
 <Route path="chat" element={<Chatgeneration />} />
+
+
+
+
 
 </Route>
 
