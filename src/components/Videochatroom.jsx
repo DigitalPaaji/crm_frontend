@@ -20,14 +20,16 @@ const Videochatroom = ({ roomid,name }) => {
   const [isVideoOff, setIsVideoOff] = useState(false);
   const [isRemoteConnected, setIsRemoteConnected] = useState(false);
 
-  useEffect(() => {
-    const startConnection = async () => {
+
+ const startConnection = async () => {
       try {
         // 1. Get user media
         const stream = await navigator.mediaDevices.getUserMedia({
           video: true,
           audio: true,
         });
+
+// console.log(stream)
 
         localStreamRef.current = stream;
         if (localVideoRef.current) {
@@ -37,25 +39,32 @@ const Videochatroom = ({ roomid,name }) => {
         // 2. Initialize Peer Connection
         peerRef.current = new RTCPeerConnection({
           iceServers: [
-            { urls: "stun:stun.l.google.com:19302" },
-            { urls: "stun:stun1.l.google.com:19302" }
+           {
+      urls: "stun:stun.l.google.com:19302",
+    },
+    {
+      urls: "turn:openrelay.metered.ca:80",
+      username: "openrelayproject",
+      credential: "openrelayproject",
+    },
           ],
         });
 
-        // Add local tracks to peer connection
+    //     // Add local tracks to peer connection
         stream.getTracks().forEach((track) => {
           peerRef.current.addTrack(track, stream);
         });
 
-        // Listen for remote tracks
+    //     // Listen for remote tracks
         peerRef.current.ontrack = (event) => {
+            console.log("REMOTE TRACK RECEIVED");
           if (remoteVideoRef.current) {
             remoteVideoRef.current.srcObject = event.streams[0];
             setIsRemoteConnected(true);
           }
         };
 
-        // Listen for ICE candidates and send them to the server
+    //     // Listen for ICE candidates and send them to the server
         peerRef.current.onicecandidate = (event) => {
           if (event.candidate) {
             socket.emit("ice-candidate", {
@@ -74,18 +83,25 @@ const Videochatroom = ({ roomid,name }) => {
       }
     };
 
+
+
+
+  useEffect(() => {
+   
+
     startConnection();
 
-    // Socket Event Listeners
+  
     socket.on("user-joined", async () => {
-      // Create and send offer when a new user joins
+        console.log("USER JOINED");
       const offer = await peerRef.current.createOffer();
       await peerRef.current.setLocalDescription(offer);
       socket.emit("offer", { roomId: roomid, offer });
     });
 
     socket.on("offer", async (offer) => {
-      // Receive offer, set remote description, and send answer
+       console.log("OFFER RECEIVED");
+     
       await peerRef.current.setRemoteDescription(new RTCSessionDescription(offer));
       const answer = await peerRef.current.createAnswer();
       await peerRef.current.setLocalDescription(answer);
@@ -93,11 +109,13 @@ const Videochatroom = ({ roomid,name }) => {
     });
 
     socket.on("answer", async (answer) => {
+       console.log("ANSWER RECEIVED");
       // Receive answer and set remote description
       await peerRef.current.setRemoteDescription(new RTCSessionDescription(answer));
     });
 
     socket.on("ice-candidate", async (candidate) => {
+        console.log("ICE RECEIVED");
       // Add incoming ICE candidates
       try {
         await peerRef.current.addIceCandidate(new RTCIceCandidate(candidate));
