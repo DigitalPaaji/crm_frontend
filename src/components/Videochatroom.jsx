@@ -1,149 +1,214 @@
 import React, { useEffect, useRef, useState } from "react";
 import { io } from "socket.io-client";
 import { useNavigate } from "react-router-dom";
-import { Mic, MicOff, Video, VideoOff, PhoneOff } from "lucide-react";
+import { Mic, MicOff, Video, VideoOff, PhoneOff, User } from "lucide-react";
 import { io_url } from "./utlis";
 
-const socket = io(io_url);
-
-const Videochatroom = ({ roomid,name }) => {
+const Videochatroom = ({ roomid, name }) => {
   const navigate = useNavigate();
-  
-  // Media references
-  const localVideoRef = useRef(null);
-  const remoteVideoRef = useRef(null);
-  const peerRef = useRef(null);
+
+  // State for all connected peers
+  const [peers, setPeers] = useState([]);
+  const [localMediaState, setLocalMediaState] = useState({
+    isVideoOff: false,
+    isAudioMuted: false,
+    hasPermissions: true,
+  });
+
+  // Refs
+  const socketRef = useRef();
   const localStreamRef = useRef(null);
+  const localVideoRef = useRef(null);
+  const peersRef = useRef({}); // Stores actual RTCPeerConnection objects mapped by socket.id
 
-  // UI States
-  const [isAudioMuted, setIsAudioMuted] = useState(false);
-  const [isVideoOff, setIsVideoOff] = useState(false);
-  const [isRemoteConnected, setIsRemoteConnected] = useState(false);
+  const iceServers = {
+    iceServers: [
+      { urls: "stun:stun.l.google.com:19302" },
+      {
+        urls: "turn:openrelay.metered.ca:80",
+        username: "openrelayproject",
+        credential: "openrelayproject",
+      },
+    ],
+  };
 
+  useEffect(() => {
+    socketRef.current = io(io_url);
 
- const startConnection = async () => {
+    const initializeMediaAndSocket = async () => {
       try {
-        // 1. Get user media
         const stream = await navigator.mediaDevices.getUserMedia({
           video: true,
           audio: true,
         });
-
-// console.log(stream)
-
         localStreamRef.current = stream;
         if (localVideoRef.current) {
           localVideoRef.current.srcObject = stream;
         }
-
-        // 2. Initialize Peer Connection
-        peerRef.current = new RTCPeerConnection({
-          iceServers: [
-           {
-      urls: "stun:stun.l.google.com:19302",
-    },
-    {
-      urls: "turn:openrelay.metered.ca:80",
-      username: "openrelayproject",
-      credential: "openrelayproject",
-    },
-          ],
-        });
-
-    //     // Add local tracks to peer connection
-        stream.getTracks().forEach((track) => {
-          peerRef.current.addTrack(track, stream);
-        });
-
-    //     // Listen for remote tracks
-        peerRef.current.ontrack = (event) => {
-            console.log("REMOTE TRACK RECEIVED");
-          if (remoteVideoRef.current) {
-            remoteVideoRef.current.srcObject = event.streams[0];
-            setIsRemoteConnected(true);
-          }
-        };
-
-    //     // Listen for ICE candidates and send them to the server
-        peerRef.current.onicecandidate = (event) => {
-          if (event.candidate) {
-            socket.emit("ice-candidate", {
-              roomId: roomid,
-              candidate: event.candidate,
-            //   username:name
-            });
-          }
-        };
-
-        // 3. Join the room via signaling server
-        socket.emit("join-room", roomid,name);
       } catch (error) {
-        console.error("Error accessing media devices:", error);
-        alert("Could not access camera or microphone.");
+        console.error("Media permission denied or not available.", error);
+        setLocalMediaState((prev) => ({ ...prev, hasPermissions: false, isVideoOff: true, isAudioMuted: true }));
+        // Continue without local stream so they can still watch others
       }
+
+      // Join room after getting media (or failing to)
+      socketRef.current.emit("join-room", { roomId: roomid, name });
+
+      // --- Socket Events ---
+      
+      // 1. Receive existing users when you join
+      socketRef.current.on("existing-users", (existingUsers) => {
+        existingUsers.forEach((user) => {
+          const peer = createPeerConnection(user.id, user.name, true);
+          peersRef.current[user.id] = peer;
+        });
+      });
+
+      // 2. A new user joined, wait for them to send an offer
+      socketRef.current.on("user-joined", (payload) => {
+        const peer = createPeerConnection(payload.callerId, payload.name, false);
+        peersRef.current[payload.callerId] = peer;
+      });
+
+      // 3. Receive Offer
+      socketRef.current.on("offer", async (payload) => {
+        const peer = peersRef.current[payload.callerId];
+        if (peer) {
+          await peer.setRemoteDescription(new RTCSessionDescription(payload.offer));
+          const answer = await peer.createAnswer();
+          await peer.setLocalDescription(answer);
+          socketRef.current.emit("answer", {
+            target: payload.callerId,
+            callerId: socketRef.current.id,
+            answer,
+          });
+        }
+      });
+
+      // 4. Receive Answer
+      socketRef.current.on("answer", async (payload) => {
+        const peer = peersRef.current[payload.callerId];
+        if (peer) {
+          await peer.setRemoteDescription(new RTCSessionDescription(payload.answer));
+        }
+      });
+
+      // 5. Receive ICE Candidate
+      socketRef.current.on("ice-candidate", async (payload) => {
+        const peer = peersRef.current[payload.callerId];
+        if (peer) {
+          try {
+            await peer.addIceCandidate(new RTCIceCandidate(payload.candidate));
+          } catch (e) {
+            console.error("Error adding ICE candidate", e);
+          }
+        }
+      });
+
+      // 6. Handle peer media state change (someone muted/turned off camera)
+      socketRef.current.on("peer-media-state-change", (payload) => {
+        setPeers((prevPeers) =>
+          prevPeers.map((p) =>
+            p.id === payload.id
+              ? { ...p, isVideoOff: payload.isVideoOff, isAudioMuted: payload.isAudioMuted }
+              : p
+          )
+        );
+      });
+
+      // 7. User Disconnected
+      socketRef.current.on("user-disconnected", (id) => {
+        if (peersRef.current[id]) {
+          peersRef.current[id].close();
+          delete peersRef.current[id];
+        }
+        setPeers((prevPeers) => prevPeers.filter((p) => p.id !== id));
+      });
     };
 
+    initializeMediaAndSocket();
 
-
-
-  useEffect(() => {
-   
-
-    startConnection();
-
-  
-    socket.on("user-joined", async () => {
-        console.log("USER JOINED");
-      const offer = await peerRef.current.createOffer();
-      await peerRef.current.setLocalDescription(offer);
-      socket.emit("offer", { roomId: roomid, offer });
-    });
-
-    socket.on("offer", async (offer) => {
-       console.log("OFFER RECEIVED");
-     
-      await peerRef.current.setRemoteDescription(new RTCSessionDescription(offer));
-      const answer = await peerRef.current.createAnswer();
-      await peerRef.current.setLocalDescription(answer);
-      socket.emit("answer", { roomId: roomid, answer });
-    });
-
-    socket.on("answer", async (answer) => {
-       console.log("ANSWER RECEIVED");
-      // Receive answer and set remote description
-      await peerRef.current.setRemoteDescription(new RTCSessionDescription(answer));
-    });
-
-    socket.on("ice-candidate", async (candidate) => {
-        console.log("ICE RECEIVED");
-      // Add incoming ICE candidates
-      try {
-        await peerRef.current.addIceCandidate(new RTCIceCandidate(candidate));
-      } catch (err) {
-        console.error("Error adding ice candidate:", err);
-      }
-    });
-
-    // Cleanup on unmount
     return () => {
-      socket.off("user-joined");
-      socket.off("offer");
-      socket.off("answer");
-      socket.off("ice-candidate");
-
-      peerRef.current?.close();
+      socketRef.current.disconnect();
       localStreamRef.current?.getTracks().forEach((track) => track.stop());
+      Object.values(peersRef.current).forEach((peer) => peer.close());
     };
-  }, [roomid]);
+  }, [roomid, name]);
 
-  // --- Control Functions ---
+  // Helper function to create PeerConnections dynamically
+  const createPeerConnection = (targetSocketId, targetName, isInitiator) => {
+    const peer = new RTCPeerConnection(iceServers);
+
+    // Add local tracks if we have permissions
+    if (localStreamRef.current) {
+      localStreamRef.current.getTracks().forEach((track) => {
+        peer.addTrack(track, localStreamRef.current);
+      });
+    }
+
+    // Handle incoming remote tracks
+    peer.ontrack = (event) => {
+      setPeers((prevPeers) => {
+        const existingPeer = prevPeers.find((p) => p.id === targetSocketId);
+        if (existingPeer) return prevPeers; // Avoid duplicates
+
+        return [
+          ...prevPeers,
+          {
+            id: targetSocketId,
+            name: targetName,
+            stream: event.streams[0],
+            isVideoOff: false,
+            isAudioMuted: false,
+          },
+        ];
+      });
+    };
+
+    peer.onicecandidate = (event) => {
+      if (event.candidate) {
+        socketRef.current.emit("ice-candidate", {
+          target: targetSocketId,
+          callerId: socketRef.current.id,
+          candidate: event.candidate,
+        });
+      }
+    };
+
+    if (isInitiator) {
+      peer.onnegotiationneeded = async () => {
+        try {
+          const offer = await peer.createOffer();
+          await peer.setLocalDescription(offer);
+          socketRef.current.emit("offer", {
+            target: targetSocketId,
+            callerId: socketRef.current.id,
+            offer,
+          });
+        } catch (err) {
+          console.error("Negotiation error:", err);
+        }
+      };
+    }
+
+    return peer;
+  };
+
+  // --- Controls ---
 
   const toggleAudio = () => {
     if (localStreamRef.current) {
       const audioTrack = localStreamRef.current.getAudioTracks()[0];
       if (audioTrack) {
         audioTrack.enabled = !audioTrack.enabled;
-        setIsAudioMuted(!audioTrack.enabled);
+        const newMuteState = !audioTrack.enabled;
+        setLocalMediaState((prev) => ({ ...prev, isAudioMuted: newMuteState }));
+        
+        socketRef.current.emit("media-state-change", {
+          roomId: roomid,
+          isVideoOff: localMediaState.isVideoOff,
+          isAudioMuted: newMuteState,
+        });
       }
     }
   };
@@ -153,96 +218,127 @@ const Videochatroom = ({ roomid,name }) => {
       const videoTrack = localStreamRef.current.getVideoTracks()[0];
       if (videoTrack) {
         videoTrack.enabled = !videoTrack.enabled;
-        setIsVideoOff(!videoTrack.enabled);
+        const newVideoState = !videoTrack.enabled;
+        setLocalMediaState((prev) => ({ ...prev, isVideoOff: newVideoState }));
+        
+        socketRef.current.emit("media-state-change", {
+          roomId: roomid,
+          isVideoOff: newVideoState,
+          isAudioMuted: localMediaState.isAudioMuted,
+        });
       }
     }
   };
 
   const leaveMeeting = () => {
-    // Stop tracks and clean up
-    localStreamRef.current?.getTracks().forEach(track => track.stop());
-    peerRef.current?.close();
-    socket.disconnect(); // Optional depending on if you reuse the socket
-    navigate("/dashboard"); // Redirect user after leaving
+    localStreamRef.current?.getTracks().forEach((track) => track.stop());
+    Object.values(peersRef.current).forEach((peer) => peer.close());
+    socketRef.current.disconnect();
+    navigate("/dashboard");
   };
 
   return (
-    <div className="relative h-screen w-full bg-gray-950 flex items-center justify-center overflow-hidden font-sans">
+    <div className="relative h-screen w-full bg-gray-950 p-4 pt-10 pb-32 flex flex-wrap gap-4 items-center justify-center overflow-hidden font-sans">
       
-      {/* Remote Video (Main Background) */}
-      <div className="absolute inset-0 flex items-center justify-center">
-        {isRemoteConnected ? (
+      {/* Dynamic Grid for All Remote Users */}
+      <div className={`w-full h-full grid gap-4 ${peers.length === 0 ? 'grid-cols-1' : peers.length === 1 ? 'grid-cols-2' : 'grid-cols-2 md:grid-cols-3'}`}>
+        
+        {/* Local User */}
+        <div className="relative w-full h-full bg-gray-800 rounded-2xl overflow-hidden shadow-2xl border border-gray-700/50 flex items-center justify-center">
           <video
-            ref={remoteVideoRef}
+            ref={localVideoRef}
             autoPlay
+            muted
             playsInline
-            className="w-full h-full object-cover"
+            className={`w-full h-full object-cover scale-x-[-1] ${localMediaState.isVideoOff ? "hidden" : "block"}`}
           />
-        ) : (
-          <div className="text-gray-500 flex flex-col items-center">
-            <div className="w-20 h-20 bg-gray-800 rounded-full flex items-center justify-center mb-4 animate-pulse">
-              <Video className="w-8 h-8 text-gray-600" />
+          {localMediaState.isVideoOff && (
+            <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-900">
+              <div className="w-24 h-24 bg-gray-700 rounded-full flex items-center justify-center mb-4">
+                <User className="w-12 h-12 text-gray-400" />
+              </div>
+              <h2 className="text-xl font-bold text-gray-300">{name} (You)</h2>
+              {!localMediaState.hasPermissions && (
+                <p className="text-sm text-red-400 mt-2">Camera/Mic access denied</p>
+              )}
             </div>
-            <p className="text-lg font-medium">Waiting for others to join...</p>
-            <p className="text-sm">Room: {roomid}</p>
+          )}
+          <div className="absolute bottom-4 left-4 bg-black/60 px-3 py-1 rounded-md text-white text-sm">
+            {name} (You) {localMediaState.isAudioMuted && <MicOff className="inline w-4 h-4 ml-2 text-red-500" />}
           </div>
-        )}
-      </div>
+        </div>
 
-      {/* Local Video (Picture-in-Picture) */}
-      <div className="absolute top-6 right-6 w-48 sm:w-64 aspect-video bg-gray-800 rounded-2xl overflow-hidden shadow-2xl border-2 border-gray-700/50 z-10 transition-all hover:scale-105">
-        <video
-          ref={localVideoRef}
-          autoPlay
-          muted
-          playsInline
-          className={`w-full h-full object-cover ${isVideoOff ? 'hidden' : 'block'} scale-x-[-1]`} // Flipped for mirror effect
-        />
-        {isVideoOff && (
-          <div className="w-full h-full flex items-center justify-center bg-gray-800">
-            <VideoOff className="w-8 h-8 text-gray-500" />
-          </div>
-        )}
+        {/* Remote Users */}
+        {peers.map((peer) => (
+          <RemoteVideo key={peer.id} peer={peer} />
+        ))}
       </div>
 
       {/* Control Bar */}
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-4 bg-gray-900/80 backdrop-blur-md px-6 py-4 rounded-3xl border border-gray-800/50 shadow-2xl z-20">
-        
-        {/* Mute Button */}
+      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-4 bg-gray-900/90 backdrop-blur-md px-6 py-4 rounded-3xl border border-gray-800 shadow-2xl z-20">
         <button
           onClick={toggleAudio}
-          className={`p-4 rounded-full transition-all ${
-            isAudioMuted 
-              ? "bg-red-500 hover:bg-red-600 text-white" 
+          disabled={!localMediaState.hasPermissions}
+          className={`p-4 rounded-full transition-all disabled:opacity-50 ${
+            localMediaState.isAudioMuted
+              ? "bg-red-500 hover:bg-red-600 text-white"
               : "bg-gray-800 hover:bg-gray-700 text-gray-200"
           }`}
-          title={isAudioMuted ? "Unmute" : "Mute"}
         >
-          {isAudioMuted ? <MicOff className="w-6 h-6" /> : <Mic className="w-6 h-6" />}
+          {localMediaState.isAudioMuted ? <MicOff className="w-6 h-6" /> : <Mic className="w-6 h-6" />}
         </button>
 
-        {/* Video Button */}
         <button
           onClick={toggleVideo}
-          className={`p-4 rounded-full transition-all ${
-            isVideoOff 
-              ? "bg-red-500 hover:bg-red-600 text-white" 
+          disabled={!localMediaState.hasPermissions}
+          className={`p-4 rounded-full transition-all disabled:opacity-50 ${
+            localMediaState.isVideoOff
+              ? "bg-red-500 hover:bg-red-600 text-white"
               : "bg-gray-800 hover:bg-gray-700 text-gray-200"
           }`}
-          title={isVideoOff ? "Turn on camera" : "Turn off camera"}
         >
-          {isVideoOff ? <VideoOff className="w-6 h-6" /> : <Video className="w-6 h-6" />}
+          {localMediaState.isVideoOff ? <VideoOff className="w-6 h-6" /> : <Video className="w-6 h-6" />}
         </button>
 
-        {/* Leave Button */}
         <button
           onClick={leaveMeeting}
           className="p-4 rounded-full bg-red-600 hover:bg-red-700 text-white transition-all shadow-lg shadow-red-600/20"
-          title="Leave Meeting"
         >
           <PhoneOff className="w-6 h-6" />
         </button>
+      </div>
+    </div>
+  );
+};
 
+// Sub-component for rendering remote videos cleanly
+const RemoteVideo = ({ peer }) => {
+  const ref = useRef();
+
+  useEffect(() => {
+    if (ref.current && peer.stream) {
+      ref.current.srcObject = peer.stream;
+    }
+  }, [peer.stream]);
+
+  return (
+    <div className="relative w-full h-full bg-gray-800 rounded-2xl overflow-hidden shadow-2xl border border-gray-700/50 flex items-center justify-center">
+      <video
+        ref={ref}
+        autoPlay
+        playsInline
+        className={`w-full h-full object-cover ${peer.isVideoOff ? "hidden" : "block"}`}
+      />
+      {peer.isVideoOff && (
+        <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-900">
+          <div className="w-24 h-24 bg-gray-700 rounded-full flex items-center justify-center mb-4">
+            <User className="w-12 h-12 text-gray-400" />
+          </div>
+          <h2 className="text-xl font-bold text-gray-300">{peer.name}</h2>
+        </div>
+      )}
+      <div className="absolute bottom-4 left-4 bg-black/60 px-3 py-1 rounded-md text-white text-sm">
+        {peer.name} {peer.isAudioMuted && <MicOff className="inline w-4 h-4 ml-2 text-red-500" />}
       </div>
     </div>
   );
