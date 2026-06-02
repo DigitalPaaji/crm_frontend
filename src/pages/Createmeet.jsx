@@ -143,7 +143,7 @@ const Createmeet = () => {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {meetsList.map((meet) => {
-              const fullMeetUrl = `${window.location.origin}/meet/${meet.roomid}`;
+              const fullMeetUrl = `${window.location.origin}/#/meet/${meet.roomid}`;
 
               return (
                 <div key={meet._id} className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow flex flex-col h-full">
