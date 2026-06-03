@@ -135,7 +135,9 @@ const Videochatroom = ({ roomid, name }) => {
     };
   }, [roomid, name]);
 
-  // Helper function to create PeerConnections dynamically
+  
+
+
   const createPeerConnection = (targetSocketId, targetName, isInitiator) => {
     const peer = new RTCPeerConnection(iceServers);
 
@@ -276,6 +278,7 @@ const Videochatroom = ({ roomid, name }) => {
 
       {/* Control Bar */}
       <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-4 bg-gray-900/90 backdrop-blur-md px-6 py-4 rounded-3xl border border-gray-800 shadow-2xl z-20">
+       
         <button
           onClick={toggleAudio}
           disabled={!localMediaState.hasPermissions}
@@ -306,6 +309,8 @@ const Videochatroom = ({ roomid, name }) => {
         >
           <PhoneOff className="w-6 h-6" />
         </button>
+
+
       </div>
     </div>
   );
