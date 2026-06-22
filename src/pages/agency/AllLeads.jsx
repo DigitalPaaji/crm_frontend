@@ -198,9 +198,9 @@ const AllLeads = () => {
               <tr className="bg-gray-50 border-b border-gray-200">
                 <th className="px-6 py-4 text-sm font-semibold text-gray-600">Contact Details</th>
                 <th className="px-6 py-4 text-sm font-semibold text-gray-600">Phone</th>
-                <th className="px-6 py-4 text-sm font-semibold text-gray-600">DOB</th>
                 <th className="px-6 py-4 text-sm font-semibold text-gray-600">Source</th>
                 <th className="px-6 py-4 text-sm font-semibold text-gray-600">Lead By</th>
+                <th className="px-6 py-4 text-sm font-semibold text-gray-600"> Create on</th>
                 <th className="px-6 py-4 text-sm font-semibold text-gray-600">Status</th>
                 <th className="px-6 py-4 text-sm font-semibold text-gray-600 text-right">Actions</th>
               </tr>
@@ -240,16 +240,7 @@ const AllLeads = () => {
                     </td>
 
                     {/* DOB */}
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-2 text-gray-600 text-sm">
-                        <Calendar className="w-4 h-4 text-gray-400" />
-                        <span>
-                          {lead.dob 
-                            ? new Date(lead.dob).toLocaleDateString() 
-                            : 'Not specified'}
-                        </span>
-                      </div>
-                    </td>
+                   
 
                     {/* Source */}
                     <td className="px-6 py-4">
@@ -265,8 +256,24 @@ const AllLeads = () => {
                         {lead.createdby?.name || 'Unknown'}
                       </div>
                     </td>
-
-                    {/* Status */}
+{console.log(lead)}
+                  <td className="px-6 py-4">
+                      <div className="flex items-center gap-2 text-gray-600 text-sm">
+                        <Calendar className="w-4 h-4 text-gray-400" />
+                        <div className='flex flex-col gap-0.5'>
+                        <span>
+                          {lead.createdAt 
+                            ? new Date(lead.createdAt).toLocaleTimeString() 
+                            : 'Not specified'}
+                        </span>
+                        <span>
+                          {lead.createdAt 
+                            ? new Date(lead.createdAt).toLocaleDateString() 
+                            : 'Not specified'}
+                        </span>
+                        </div>
+                      </div>
+                    </td>
                     <td className="px-6 py-4">
                       <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border capitalize ${getStatusColor(lead.status)}`}>
                         <Tag className="w-3 h-3" />

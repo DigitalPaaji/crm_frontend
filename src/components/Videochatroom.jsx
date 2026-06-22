@@ -135,9 +135,6 @@ const Videochatroom = ({ roomid, name }) => {
     };
   }, [roomid, name]);
 
-  
-
-
   const createPeerConnection = (targetSocketId, targetName, isInitiator) => {
     const peer = new RTCPeerConnection(iceServers);
 
@@ -239,34 +236,57 @@ const Videochatroom = ({ roomid, name }) => {
     navigate("/dashboard");
   };
 
+  // Responsive Grid Logic
+  const totalParticipants = peers.length + 1;
+  const getGridClasses = (total) => {
+    if (total === 1) return 'grid-cols-1';
+    if (total === 2) return 'grid-cols-1 md:grid-cols-2'; // Stack vertically on mobile
+    if (total === 3 || total === 4) return 'grid-cols-2'; // 2x2 grid
+    if (total >= 5 && total <= 6) return 'grid-cols-2 md:grid-cols-3'; // 3x2 grid
+    return 'grid-cols-2 md:grid-cols-3 lg:grid-cols-4'; // Fallback for large meetings
+  };
+
   return (
-    <div className="relative h-screen w-full bg-gray-950 p-4 pt-10 pb-32 flex flex-wrap gap-4 items-center justify-center overflow-hidden font-sans">
+    <div className="relative h-[100dvh] w-full bg-gray-950 p-2 md:p-4 pt-4 md:pt-10 pb-28 md:pb-32 flex flex-col items-center justify-center overflow-hidden font-sans">
       
-      {/* Dynamic Grid for All Remote Users */}
-      <div className={`w-full h-full grid gap-4 ${peers.length === 0 ? 'grid-cols-1' : peers.length === 1 ? 'grid-cols-2' : 'grid-cols-2 md:grid-cols-3'}`}>
+      {/* Dynamic Grid for All Users */}
+      <div className={`w-full h-full max-w-7xl mx-auto grid gap-2 md:gap-4 auto-rows-fr ${getGridClasses(totalParticipants)}`}>
         
         {/* Local User */}
-        <div className="relative w-full h-full bg-gray-800 rounded-2xl overflow-hidden shadow-2xl border border-gray-700/50 flex items-center justify-center">
+        <div className="group relative w-full h-full bg-gray-900 rounded-xl md:rounded-2xl overflow-hidden shadow-lg border border-gray-800 transition-all duration-300 hover:border-gray-600">
           <video
             ref={localVideoRef}
             autoPlay
             muted
             playsInline
-            className={`w-full h-full object-cover scale-x-[-1] ${localMediaState.isVideoOff ? "hidden" : "block"}`}
+            className={`w-full h-full object-cover scale-x-[-1] transition-opacity duration-300 ${localMediaState.isVideoOff ? "opacity-0 hidden" : "opacity-100 block"}`}
           />
+          
+          {/*  */}
           {localMediaState.isVideoOff && (
-            <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-900">
-              <div className="w-24 h-24 bg-gray-700 rounded-full flex items-center justify-center mb-4">
-                <User className="w-12 h-12 text-gray-400" />
+            <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-800/95 backdrop-blur-sm">
+              <div className="w-20 h-20 md:w-24 md:h-24 bg-gray-700 rounded-full flex items-center justify-center mb-3 shadow-inner">
+                <User className="w-10 h-10 md:w-12 md:h-12 text-gray-400" />
               </div>
-              <h2 className="text-xl font-bold text-gray-300">{name} (You)</h2>
+              <h2 className="text-lg md:text-xl font-semibold text-gray-200 truncate px-4 max-w-full">
+                {name} (You)
+              </h2>
               {!localMediaState.hasPermissions && (
-                <p className="text-sm text-red-400 mt-2">Camera/Mic access denied</p>
+                <p className="text-xs md:text-sm text-red-400 mt-2 font-medium bg-red-500/10 px-3 py-1 rounded-full border border-red-500/20">
+                  Camera/Mic access denied
+                </p>
               )}
             </div>
           )}
-          <div className="absolute bottom-4 left-4 bg-black/60 px-3 py-1 rounded-md text-white text-sm">
-            {name} (You) {localMediaState.isAudioMuted && <MicOff className="inline w-4 h-4 ml-2 text-red-500" />}
+          
+          {/* Name Tag */}
+          <div className="absolute bottom-3 left-3 md:bottom-4 md:left-4 bg-black/50 backdrop-blur-md px-3 py-1.5 rounded-lg text-white text-xs md:text-sm font-medium flex items-center gap-2 border border-white/10 transition-colors group-hover:bg-black/70 shadow-sm z-10">
+            <span className="truncate max-w-[120px] md:max-w-[200px]">{name} (You)</span>
+            {localMediaState.isAudioMuted && (
+              <div className="bg-red-500/20 p-1 rounded-full flex items-center justify-center">
+                <MicOff className="w-3.5 h-3.5 text-red-400" />
+              </div>
+            )}
           </div>
         </div>
 
@@ -277,40 +297,40 @@ const Videochatroom = ({ roomid, name }) => {
       </div>
 
       {/* Control Bar */}
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-4 bg-gray-900/90 backdrop-blur-md px-6 py-4 rounded-3xl border border-gray-800 shadow-2xl z-20">
-       
+      <div className="absolute bottom-6 md:bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-3 md:gap-4 bg-gray-900/80 backdrop-blur-lg px-6 md:px-8 py-3 md:py-4 rounded-full border border-gray-700 shadow-2xl z-20">
+        
         <button
           onClick={toggleAudio}
           disabled={!localMediaState.hasPermissions}
-          className={`p-4 rounded-full transition-all disabled:opacity-50 ${
+          className={`p-3 md:p-4 rounded-full transition-all disabled:opacity-50 ${
             localMediaState.isAudioMuted
-              ? "bg-red-500 hover:bg-red-600 text-white"
-              : "bg-gray-800 hover:bg-gray-700 text-gray-200"
+              ? "bg-red-500 hover:bg-red-600 text-white shadow-lg shadow-red-500/20"
+              : "bg-gray-700 hover:bg-gray-600 text-gray-100"
           }`}
         >
-          {localMediaState.isAudioMuted ? <MicOff className="w-6 h-6" /> : <Mic className="w-6 h-6" />}
+          {localMediaState.isAudioMuted ? <MicOff className="w-5 h-5 md:w-6 md:h-6" /> : <Mic className="w-5 h-5 md:w-6 md:h-6" />}
         </button>
 
         <button
           onClick={toggleVideo}
           disabled={!localMediaState.hasPermissions}
-          className={`p-4 rounded-full transition-all disabled:opacity-50 ${
+          className={`p-3 md:p-4 rounded-full transition-all disabled:opacity-50 ${
             localMediaState.isVideoOff
-              ? "bg-red-500 hover:bg-red-600 text-white"
-              : "bg-gray-800 hover:bg-gray-700 text-gray-200"
+              ? "bg-red-500 hover:bg-red-600 text-white shadow-lg shadow-red-500/20"
+              : "bg-gray-700 hover:bg-gray-600 text-gray-100"
           }`}
         >
-          {localMediaState.isVideoOff ? <VideoOff className="w-6 h-6" /> : <Video className="w-6 h-6" />}
+          {localMediaState.isVideoOff ? <VideoOff className="w-5 h-5 md:w-6 md:h-6" /> : <Video className="w-5 h-5 md:w-6 md:h-6" />}
         </button>
+
+        <div className="w-px h-8 bg-gray-700 mx-1 md:mx-2"></div> {/* Separator */}
 
         <button
           onClick={leaveMeeting}
-          className="p-4 rounded-full bg-red-600 hover:bg-red-700 text-white transition-all shadow-lg shadow-red-600/20"
+          className="p-3 md:p-4 rounded-full bg-red-600 hover:bg-red-700 text-white transition-all shadow-lg shadow-red-600/30"
         >
-          <PhoneOff className="w-6 h-6" />
+          <PhoneOff className="w-5 h-5 md:w-6 md:h-6" />
         </button>
-
-
       </div>
     </div>
   );
@@ -327,23 +347,34 @@ const RemoteVideo = ({ peer }) => {
   }, [peer.stream]);
 
   return (
-    <div className="relative w-full h-full bg-gray-800 rounded-2xl overflow-hidden shadow-2xl border border-gray-700/50 flex items-center justify-center">
+    <div className="group relative w-full h-full bg-gray-900 rounded-xl md:rounded-2xl overflow-hidden shadow-lg border border-gray-800 transition-all duration-300 hover:border-gray-600">
       <video
         ref={ref}
         autoPlay
         playsInline
-        className={`w-full h-full object-cover ${peer.isVideoOff ? "hidden" : "block"}`}
+        className={`w-full h-full object-cover transition-opacity duration-300 ${peer.isVideoOff ? "opacity-0 hidden" : "opacity-100 block"}`}
       />
+      
+      {/* Video Off Placeholder */}
       {peer.isVideoOff && (
-        <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-900">
-          <div className="w-24 h-24 bg-gray-700 rounded-full flex items-center justify-center mb-4">
-            <User className="w-12 h-12 text-gray-400" />
+        <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-800/95 backdrop-blur-sm">
+          <div className="w-20 h-20 md:w-24 md:h-24 bg-gray-700 rounded-full flex items-center justify-center mb-3 shadow-inner">
+            <User className="w-10 h-10 md:w-12 md:h-12 text-gray-400" />
           </div>
-          <h2 className="text-xl font-bold text-gray-300">{peer.name}</h2>
+          <h2 className="text-lg md:text-xl font-semibold text-gray-200 truncate px-4 max-w-full">
+            {peer.name}
+          </h2>
         </div>
       )}
-      <div className="absolute bottom-4 left-4 bg-black/60 px-3 py-1 rounded-md text-white text-sm">
-        {peer.name} {peer.isAudioMuted && <MicOff className="inline w-4 h-4 ml-2 text-red-500" />}
+
+      {/* Name Tag */}
+      <div className="absolute bottom-3 left-3 md:bottom-4 md:left-4 bg-black/50 backdrop-blur-md px-3 py-1.5 rounded-lg text-white text-xs md:text-sm font-medium flex items-center gap-2 border border-white/10 transition-colors group-hover:bg-black/70 shadow-sm z-10">
+        <span className="truncate max-w-[120px] md:max-w-[200px]">{peer.name}</span>
+        {peer.isAudioMuted && (
+          <div className="bg-red-500/20 p-1 rounded-full flex items-center justify-center">
+            <MicOff className="w-3.5 h-3.5 text-red-400" />
+          </div>
+        )}
       </div>
     </div>
   );

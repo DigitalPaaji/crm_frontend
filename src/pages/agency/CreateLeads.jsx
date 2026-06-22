@@ -22,12 +22,12 @@ const CreateLeads = () => {
     name: '',
     email: '',
     phone: '',
-    dob: '',
-    mother: '',
-    father: '',
+    // dob: '',
+    // mother: '',
+    // father: '',
     address: '',
     designation: '',
-    education: null,
+    // education: null,
     source: '',
     notes: ''
   });
@@ -43,6 +43,23 @@ const CreateLeads = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
    
+  const hasAtLeastOneValue = Object.values(formData).some((value) => {
+    if (typeof value === "string") {
+      return value.trim() !== "";
+    }
+
+    if (Array.isArray(value)) {
+      return value.length > 0;
+    }
+
+    return value !== null && value !== undefined;
+  });
+
+  if (!hasAtLeastOneValue) {
+    toast.error("Please fill at least one field");
+    return;
+  }
+
    try {
     const response = await fetch(`${base_url}/leads/create`,{
         method:"POST",
@@ -56,17 +73,17 @@ const CreateLeads = () => {
   
     if(data.success){
 toast.success(data.message)
-setShowPopUp(true)
+// setShowPopUp(true)
 setFormData({
     name: '',
     email: '',
     phone: '',
-    dob: '',
-    mother: '',
-    father: '',
+    // dob: '',
+    // mother: '',
+    // father: '',
     address: '',
     designation: '',
-    education: null,
+    // education: null,
     source: '',
     notes: ''
   })
@@ -342,7 +359,7 @@ else{
             </div>
 
             {/* Date of Birth */}
-            <div className="relative">
+            {/* <div className="relative">
               <label className="block text-sm font-medium text-gray-700 mb-1">Date of Birth</label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -356,10 +373,10 @@ else{
                   className="pl-10 w-full rounded-lg border border-gray-300 bg-white py-2.5 px-3 text-sm outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"
                 />
               </div>
-            </div>
+            </div> */}
 
             {/* Mother's Name */}
-            <div className="relative">
+            {/* <div className="relative">
               <label className="block text-sm font-medium text-gray-700 mb-1">Mother's Name</label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -374,10 +391,10 @@ else{
                   placeholder="Mother's Full Name"
                 />
               </div>
-            </div>
+            </div> */}
 
             {/* Father's Name */}
-            <div className="relative">
+            {/* <div className="relative">
               <label className="block text-sm font-medium text-gray-700 mb-1">Father's Name</label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -392,7 +409,7 @@ else{
                   placeholder="Father's Full Name"
                 />
               </div>
-            </div>
+            </div> */}
 
             {/* Designation */}
             <div className="relative">
@@ -413,7 +430,7 @@ else{
             </div>
 
             {/* Education (Dropdown) */}
-            <div className="relative">
+            {/* <div className="relative">
               <label className="block text-sm font-medium text-gray-700 mb-1">Education Level</label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -433,7 +450,7 @@ else{
                   <option value="other">Other</option>
                 </select>
               </div>
-            </div>
+            </div> */}
 
             {/* Source */}
             <div className="relative md:col-span-2">
