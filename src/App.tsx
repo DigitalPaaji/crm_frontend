@@ -143,7 +143,7 @@ transition={Slide}
         {/* <Route path="student" element={<StudentPage />} />*/}
         
       <Route path="create-leads" element={<CreateLeads />} /> 
-      <Route path="all-leads" element={<AllLeads />} />
+      {/* <Route path="all-leads" element={<AllLeads />} /> */}
       <Route path="follow-up" element={<FollowUp />} />
       <Route path="tasks" element={<TaskPage />} />
       <Route path="my-leads" element={<MyLeads />} />

@@ -31,7 +31,7 @@ const {info,isLoading,isError}= useSelector(state=>state.user)
     { name: 'Dashboard', path: '/agency', icon: LayoutDashboard },
     { name: 'Create Leads', path: '/agency/create-leads', icon: GraduationCap },
     { name: 'My Leads', path: '/agency/my-leads', icon: NotebookPen },
-    { name: 'All Leads', path:'/agency/all-leads', icon: Briefcase },
+    // { name: 'All Leads', path:'/agency/all-leads', icon: Briefcase },
     { name: 'Follow Up', path:'/agency/follow-up', icon: UserRoundPlus },
     { name: 'My Tasks', path:'/agency/tasks', icon: CalendarCheck },
     { name: 'Message', path:'/agency/message', icon: MessagesSquare },
