@@ -40,7 +40,7 @@ const OnBoardFullPage = () => {
       return;
     }
 
-  
+    const controller = new AbortController();
 
     const fetchData = async () => {
       try {
@@ -82,7 +82,7 @@ const OnBoardFullPage = () => {
 
     fetchData();
 
-    
+    return () => controller.abort();
   }, [token, id]);
 
   const formatDate = (value) => {
