@@ -27,15 +27,8 @@ const OnBoardpage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
 
-  useEffect(() => {
-    if (!token) {
-      setIsLoading(false);
-      return;
-    }
 
-    const controller = new AbortController();
-
-    const fetchData = async () => {
+  const fetchData = async () => {
       try {
         setIsLoading(true);
         setError("");
@@ -71,9 +64,16 @@ const OnBoardpage = () => {
       }
     };
 
+  useEffect(() => {
+    if (!token) {
+      setIsLoading(false);
+      return;
+    }
+
+   
     fetchData();
 
-    return () => controller.abort();
+    
   }, [token]);
 
   const filteredClients = useMemo(() => {
