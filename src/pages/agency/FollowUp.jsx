@@ -37,7 +37,7 @@ const FollowUp = () => {
     try {
       setLoading(true);
       setError(null);
-      
+       
       const response = await fetch(`${base_url}/leads/get-leads-by-date?${query}`, {
         method: "GET",
         headers: {

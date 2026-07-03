@@ -49,6 +49,8 @@ import DefaultMessage from "./components/DefaultMessage"
 import MessageCompo from "./components/MessageCompo"
 
 import TaskPage from "./pages/TaskPage"
+import OnBoardpage from "./pages/admin/OnBoardpage"
+import OnBoardFullPage from "./pages/admin/OnBoardFullPage"
 function App(): React.JSX.Element {
 
   return (
@@ -86,6 +88,9 @@ transition={Slide}
 
 
  </Route>
+
+ <Route path="on-Board" element={<OnBoardpage />} />
+ <Route path="on-Board/:id" element={<OnBoardFullPage />} />
 
         <Route path="settings" element={<SettingPage />} />
         {/* <Route path="student" element={<StudentPage />} />*/}

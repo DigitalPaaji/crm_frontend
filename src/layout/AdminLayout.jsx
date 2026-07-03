@@ -13,7 +13,8 @@ import {
   ChevronDown,
   Circle,
   ZodiacLeo,
-  MessagesSquare
+  MessagesSquare,
+  SquareDashedKanban
 } from 'lucide-react';
 import { base_url } from '../components/utlis';
 import { getUser } from '../store/userSlice';
@@ -61,6 +62,7 @@ const {info,isLoading,isError}= useSelector(state=>state.user)
   
     },
   { name: 'Message', path:'/admin/message', icon: MessagesSquare },
+  { name: 'On Board', path:'/admin/on-Board', icon: SquareDashedKanban },
 
   ];
 
