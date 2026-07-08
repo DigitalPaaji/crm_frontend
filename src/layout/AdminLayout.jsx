@@ -14,7 +14,8 @@ import {
   Circle,
   ZodiacLeo,
   MessagesSquare,
-  SquareDashedKanban
+  SquareDashedKanban,
+  ClipboardPenLine
 } from 'lucide-react';
 import { base_url } from '../components/utlis';
 import { getUser } from '../store/userSlice';
@@ -63,6 +64,7 @@ const {info,isLoading,isError}= useSelector(state=>state.user)
     },
   { name: 'Message', path:'/admin/message', icon: MessagesSquare },
   { name: 'On Board', path:'/admin/on-Board', icon: SquareDashedKanban },
+  { name: 'Our Clients', path:'/admin/clients', icon: ClipboardPenLine  },
 
   ];
 
@@ -184,7 +186,7 @@ useEffect(()=>{
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 px-3 py-6 space-y-1.5 overflow-y-auto overflow-x-hidden custom-scrollbar">
+        <nav className=" hide-scrollbar flex-1 px-3 py-6 space-y-1.5 overflow-y-auto overflow-x-hidden custom-scrollbar">
           {navItems.map((item) => {
             const Icon = item.icon;
             const hasLinks = item.links && item.links.length > 0;
