@@ -2,16 +2,12 @@ import React, { useEffect, useState } from 'react';
 import myLogo from "../assets/logo.webp";
 import { base_url } from '../components/utlis';
 import { toast } from 'react-toastify';
-import { Link, useNavigate } from 'react-router-dom';
-import { Eye, EyeOff } from 'lucide-react';
-
-
+import { useNavigate } from 'react-router-dom';
 
 const LoginPage = () => {
   const [email,setEmail]=useState("")
   const [password,setPassword]=useState("")
-  const [togglePassword,setTogglePassword]=useState(false)
-  const [activeRole, setActiveRole] = useState('admin');
+  const [activeRole, setActiveRole] = useState('student');
 const navigation = useNavigate()
 const roles = [
   {
@@ -55,7 +51,7 @@ const roles = [
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
       </svg>
     )
-  },
+  }
 ];
 
 
@@ -106,7 +102,7 @@ toast.success(data.message)
             {roles.map((role) => (
               <button
                 key={role.id}
-                onClick={() => {setActiveRole(role.id),setEmail(""),setPassword("")}}
+                onClick={() => setActiveRole(role.id)}
                 className={`text-left flex flex-col p-6 rounded-2xl border-2 transition-all duration-300 ${
                   activeRole === role.id
                     ? 'border-indigo-600 bg-indigo-50 shadow-md transform -translate-y-1'
@@ -128,43 +124,6 @@ toast.success(data.message)
                 </p>
               </button>
             ))}
-
-
-
-            <Link
-                // key={role.id}
-                to={"/loginclient"}
-                // onClick={() => {setActiveRole(role.id),setEmail(""),setPassword("")}}
-                className={`text-left flex flex-col p-6 rounded-2xl border-2 transition-all duration-300 border-gray-200 bg-white hover:border-indigo-300 hover:shadow-sm`}
-              >
-                <div className={`mb-4 p-3 rounded-full inline-block bg-gray-100 text-gray-600`}>
-<svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth={1.5}
-        d="M17 20h5v-2a4 4 0 00-4-4h-1M9 20H4v-2a4 4 0 014-4h1m0-4a4 4 0 100-8 4 4 0 000 8zm8 0a4 4 0 100-8 4 4 0 000 8z"
-      />
-    </svg>                </div>
-                <h2 className={`text-xl font-semibold mb-2 text-gray-800`}>
-                  Client
-                </h2>
-                <p className="text-sm text-gray-500 leading-relaxed">
-                Client portal for viewing projects, requests, reports, and updates.
-                </p>
-              </Link>
-
- {/* {
-    id: 'agency',
-    title: 'Agency',
-    description: 'Partner portal for managing client accounts and applications.',
-    icon: (
-      <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-      </svg>
-    )
-  }, */}
-
           </div>
         </div>
       </div>
@@ -196,23 +155,13 @@ toast.success(data.message)
             
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
-              <div className='relative'>
               <input 
-                type={togglePassword?"text":"password"} 
+                type="password" 
                 placeholder="••••••••"
                 value={password}
                 onChange={(e)=>setPassword(e.target.value)}
                 className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-600 focus:border-transparent outline-none transition-all"
               />
-<button  className='absolute top-1/2 right-2 -translate-y-1/2 cursor-pointer ' onClick={(e)=>
-  {e.preventDefault(),
-  setTogglePassword(prev=>(!prev))}}>
-{togglePassword ?<Eye  size={22}/> : <EyeOff size={22} />}
-  
- 
-</button>
-
-              </div>
             </div>
 
             <div className="flex items-center justify-between mt-2">

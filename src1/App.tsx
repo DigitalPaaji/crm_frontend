@@ -52,9 +52,6 @@ import TaskPage from "./pages/TaskPage"
 import OnBoardpage from "./pages/admin/OnBoardpage"
 import OnBoardFullPage from "./pages/admin/OnBoardFullPage"
 import CreaetClients from "./pages/admin/CreaetClients"
-import LoginPageClient from "./pages/client/LoginPageClient"
-import ClientLayout from "./layout/ClientLayout"
-import ClientHomePage from "./pages/client/ClientHomePage"
 function App(): React.JSX.Element {
 
   return (
@@ -79,9 +76,6 @@ transition={Slide}
 <Routes>
  <Route path="/meet/:roomid" element={<Meetingpage />} />
  <Route path="/login" element={<Loginpage />} />
- <Route path="/loginclient" element={<LoginPageClient />} />
-
- 
 
 
  <Route path="/" element={<HomePage />} />
@@ -190,14 +184,6 @@ transition={Slide}
 
 </Route>
 
-
-
-<Route path="/client" element={<ClientLayout />} >
-<Route  index element={<ClientHomePage />}/>
-
-
-
-</Route>
 
 
 
