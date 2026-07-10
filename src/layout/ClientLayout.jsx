@@ -12,6 +12,7 @@ import {
   X,
   GraduationCap,
   WavesHorizontal,
+  Cable,
 } from "lucide-react";
 import { useSelector } from "react-redux";
 import Loader from "../components/Loader";
@@ -41,6 +42,11 @@ const ClientLayout = () => {
       title: "Create Leads",
       path: "/client/create-leads",
       icon: GraduationCap,
+    },
+     {
+      title: "My Leads",
+      path: "/client/my-leads",
+      icon: Cable,
     },
     { 
       title: "Reports",

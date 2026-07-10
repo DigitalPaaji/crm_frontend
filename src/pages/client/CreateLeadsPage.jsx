@@ -8,6 +8,7 @@ import {
   AlertCircle,
   CheckCircle2,
 } from "lucide-react";
+import { toast } from "react-toastify";
 
 const fieldLabels = {
   name: "Full Name",
@@ -142,7 +143,7 @@ const CreateLeadsPage = () => {
         }
       }
 
-      const response = await fetch(`${base_url}/lead/create`, {
+      const response = await fetch(`${base_url}/leadclient/lead/create`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -157,7 +158,8 @@ const CreateLeadsPage = () => {
         throw new Error(data.message || "Failed to create lead");
       }
 
-      setMessage("Lead created successfully");
+      toast.success(data.message)
+      // toa("Lead created successfully");
 
       const resetData = {};
       fields.forEach((field) => {
@@ -165,7 +167,7 @@ const CreateLeadsPage = () => {
       });
       setFormData(resetData);
     } catch (error) {
-      setError(error.message || "Something went wrong");
+      toast.error(error.message || "Something went wrong");
     } finally {
       setSubmitLoading(false);
     }

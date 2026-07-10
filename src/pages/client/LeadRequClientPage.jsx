@@ -97,15 +97,15 @@ const fieldGroups = [
       { key: "note", label: "Note" },
     ],
   },
-  {
-    title: "Upload Fields",
-    icon: Upload,
-    fields: [
-      { key: "attachment", label: "Attachment" },
-      { key: "image", label: "Image" },
-      { key: "document", label: "Document" },
-    ],
-  },
+  // {
+  //   title: "Upload Fields",
+  //   icon: Upload,
+  //   fields: [
+  //     { key: "attachment", label: "Attachment" },
+  //     { key: "image", label: "Image" },
+  //     { key: "document", label: "Document" },
+  //   ],
+  // },
   {
     title: "Custom Fields",
     icon: SlidersHorizontal,
