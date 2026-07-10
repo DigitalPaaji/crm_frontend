@@ -55,6 +55,8 @@ import CreaetClients from "./pages/admin/CreaetClients"
 import LoginPageClient from "./pages/client/LoginPageClient"
 import ClientLayout from "./layout/ClientLayout"
 import ClientHomePage from "./pages/client/ClientHomePage"
+import LeadRequClientPage from "./pages/client/LeadRequClientPage"
+import CreateLeadsPage from "./pages/client/CreateLeadsPage"
 function App(): React.JSX.Element {
 
   return (
@@ -194,7 +196,8 @@ transition={Slide}
 
 <Route path="/client" element={<ClientLayout />} >
 <Route  index element={<ClientHomePage />}/>
-
+<Route  path="leads-requi"  element={<LeadRequClientPage />}/>
+<Route  path="create-leads"  element={<CreateLeadsPage />}/>
 
 
 </Route>

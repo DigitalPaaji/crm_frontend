@@ -135,7 +135,7 @@ const ClientLayout = () => {
             <div className="flex items-center gap-3 min-w-0">
               <div className="h-12 w-12 rounded-2xl bg-slate-50 border border-slate-200 p-2 shrink-0 overflow-hidden">
                 <img
-                  src="/logo.webp"
+                  src="/image.png"
                   alt="Digital Paaji"
                   className="h-full w-full object-contain"
                 />

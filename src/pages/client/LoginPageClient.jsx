@@ -48,7 +48,8 @@ email:formData.email,password:formData.password
   if(data.success){
      localStorage.setItem("token",data.token)
 toast.success(data.message)
- navigation("/client");
+//  navigation("/client");
+ location.href="/#/client"
 }else{
     toast.error(data.message)
 
