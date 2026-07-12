@@ -37,8 +37,8 @@ ChartJS.register(
   Legend
 );
 
-const ClientHomePage = () => {
-  const { token } = useSelector((state) => state.token);
+const SubClientHomePage = () => {
+  const { token } = useSelector((state) => state.subuser);
 
   const [dashboard, setDashboard] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -63,7 +63,7 @@ const ClientHomePage = () => {
         setError("");
 
         const response = await fetch(
-          `${base_url}/client/aboutclient`,
+          `${base_url}/subclient/aboutclient`,
           {
             method: "GET",
             headers: {
@@ -250,7 +250,7 @@ const ClientHomePage = () => {
   );
 };
 
-export default ClientHomePage;
+export default SubClientHomePage;
 
 const DashboardHeader = ({
   client,

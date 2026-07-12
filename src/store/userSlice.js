@@ -1,7 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { base_url } from "../components/utlis";
 
-// THUNK
+// THUNK 
 export const getUser = createAsyncThunk(
   "user/get",
   async (_, thunkAPI) => {

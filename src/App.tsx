@@ -59,6 +59,12 @@ import LeadRequClientPage from "./pages/client/LeadRequClientPage"
 import CreateLeadsPage from "./pages/client/CreateLeadsPage"
 import ClientLeadPage from "./pages/client/ClientLeadPage"
 import ClientSingleLead from "./pages/client/ClientSingleLead"
+import ClientUser from "./pages/client/ClientUser"
+import SubClientLayout from "./layout/SubClientLayout"
+import SubClientHomePage from "./pages/SubClient/SubClientHomePage"
+import SubCreateLeadsPage from "./pages/SubClient/SubCreateLeadsPage"
+import SubClientLeadPage from "./pages/SubClient/SubClientLeadPage"
+import SubClientSingleLead from "./pages/SubClient/SubClientSingleLead"
 function App(): React.JSX.Element {
 
   return (
@@ -202,12 +208,23 @@ transition={Slide}
 <Route  path="create-leads"  element={<CreateLeadsPage />}/>
 <Route  path="my-leads"  element={<ClientLeadPage />}/>
 <Route  path="my-leads/:id"  element={<ClientSingleLead />}/>
-
+<Route  path="users" element={<ClientUser />} />
 
 </Route>
 
 
+<Route path="/sub-client" element={<SubClientLayout />} >
+<Route  index element={<SubClientHomePage />}/>
+<Route  path="create-leads"  element={<SubCreateLeadsPage />}/>
+<Route  path="my-leads"  element={<SubClientLeadPage />}/>
+<Route  path="my-leads/:id"  element={<SubClientSingleLead />}/>
+{/* <Route  path="leads-requi"  element={<LeadRequClientPage />}/>
 
+<Route  path="my-leads"  element={<ClientLeadPage />}/>
+<Route  path="my-leads/:id"  element={<ClientSingleLead />}/>
+<Route  path="users" element={<ClientUser />} /> */}
+
+</Route>
 
 
 </Routes>

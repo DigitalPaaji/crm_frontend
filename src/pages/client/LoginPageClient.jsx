@@ -14,11 +14,14 @@ import {
 import { base_url } from "../../components/utlis";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { addUser } from "../../store/SubClient";
 
 const LoginPageClient = () => {
   const [showPassword, setShowPassword] = useState(false);
+  const [loginClient,setLoginClient]=useState(true)
 const navigation = useNavigate()
-
+const dispatch = useDispatch()
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -62,6 +65,36 @@ toast.success(data.message)
 
 
   };
+
+
+const handelSubUserSubmit = async(e)=>{
+   e.preventDefault();
+  try {
+const  response = await fetch(`${base_url}/subclient/login`,{
+    method:"POST",
+      headers: {
+    "Content-Type": "application/json",
+  },
+    body: JSON.stringify({
+      email:formData.email,password:formData.password
+    })
+   })
+  const data = await response.json()
+if(data.success){
+  toast.success(data.message)
+dispatch(addUser(data))
+navigation("/sub-client")
+
+}else{
+  toast.error(data.message)
+}
+
+    
+  } catch (error) {
+      toast.error(error?.response?.data?.message)
+
+  }
+}
 
   return (
     <div className="min-h-screen w-full bg-[#f5f7fb] flex items-center justify-center px-4 py-10">
@@ -150,10 +183,13 @@ toast.success(data.message)
             </div>
 
             <div>
-              <span className="inline-flex rounded-full bg-blue-50 px-4 py-2 text-sm font-medium text-blue-700 border border-blue-100">
-                Client Login
-              </span>
-
+   <div className="w-full rounded-xl bg-slate-100 p-1"> 
+    <div className="grid grid-cols-2 gap-1"> 
+      <button type="button" onClick={() => setLoginClient(true)} className={`rounded-lg px-4 py-2.5 text-sm font-semibold transition-all duration-200 ${ loginClient ? "bg-blue-600 text-white shadow-sm" : "text-slate-600 hover:bg-white hover:text-slate-900" }`} > Client Login </button> 
+      <button type="button" onClick={() => setLoginClient(false)} className={`rounded-lg px-4 py-2.5 text-sm font-semibold transition-all duration-200 ${ !loginClient ? "bg-blue-600 text-white shadow-sm" : "text-slate-600 hover:bg-white hover:text-slate-900" }`} > Sub User Login </button> 
+      </div>
+      
+       </div>
               <h2 className="mt-6 text-3xl sm:text-4xl font-bold text-slate-900">
                 Welcome back
               </h2>
@@ -163,7 +199,7 @@ toast.success(data.message)
               </p>
             </div>
 
-            <form onSubmit={handleSubmit} className="mt-9 space-y-5">
+            <form onSubmit={(e)=> (loginClient? handleSubmit(e):handelSubUserSubmit(e))} className="mt-9 space-y-5">
               
               {/* Email */}
               <div>
@@ -236,13 +272,25 @@ toast.success(data.message)
                 Remember me
               </label>
 
-              <button
-                type="submit"
-                className="group w-full h-14 rounded-2xl bg-blue-700 text-white font-semibold shadow-lg shadow-blue-700/20 flex items-center justify-center gap-2 transition hover:bg-blue-800 active:scale-[0.99]"
-              >
-                Login
-                <ArrowRight className="h-5 w-5 transition group-hover:translate-x-1" />
-              </button>
+<button
+  type="submit"
+  className={`group relative flex h-14 w-full items-center justify-center gap-3 overflow-hidden rounded-2xl font-semibold text-white shadow-lg transition-all duration-300 active:scale-[0.98] ${
+    loginClient
+      ? "bg-gradient-to-r from-blue-700 to-blue-600 shadow-blue-700/25 hover:from-blue-800 hover:to-blue-700"
+      : "bg-gradient-to-r from-violet-700 to-indigo-600 shadow-violet-700/25 hover:from-violet-800 hover:to-indigo-700"
+  }`}
+>
+  <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/15 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
+
+  <span className="relative flex items-center gap-2">
+    {loginClient ? "Login as Client" : "Login as Sub User"}
+
+    <ArrowRight className="h-5 w-5 transition-transform duration-300 group-hover:translate-x-1" />
+  </span>
+</button>
+
+
+
             </form>
 
             <div className="mt-8 rounded-2xl bg-slate-50 border border-slate-200 p-4">

@@ -13,17 +13,20 @@ import {
   GraduationCap,
   WavesHorizontal,
   Cable,
+  ShieldUser,
 } from "lucide-react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import Loader from "../components/Loader";
 import { base_url, io_url } from "../components/utlis";
 import { toast } from "react-toastify";
+import { getClient } from "../store/ClientStore";
 
 const ClientLayout = () => {
   const [openSidebar, setOpenSidebar] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [userDetail, setUserDetails] = useState(null);
-
+  // const [loading, setLoading] = useState(true);
+  // const [userDetail, setUserDetails] = useState(null);
+const {info:userDetail,client,isLoading:loading,isError} = useSelector(state=>state.client)
+  const dispatch = useDispatch()
   const { token } = useSelector((state) => state.token);
   const navigate = useNavigate();
 
@@ -49,25 +52,25 @@ const ClientLayout = () => {
       icon: Cable,
     },
     { 
-      title: "Reports",
-      path: "/client/reports",
-      icon: FileText,
+      title: "Users",
+      path: "/client/users",
+      icon: ShieldUser,
     },
-    {
-      title: "Requests",
-      path: "/client/requests",
-      icon: MessageSquareText,
-    },
-    {
-      title: "Profile",
-      path: "/client/profile",
-      icon: UserRound,
-    },
-    {
-      title: "Settings",
-      path: "/client/settings",
-      icon: Settings,
-    },
+    // {
+    //   title: "Requests",
+    //   path: "/client/requests",
+    //   icon: MessageSquareText,
+    // },
+    // {
+    //   title: "Profile",
+    //   path: "/client/profile",
+    //   icon: UserRound,
+    // },
+    // {
+    //   title: "Settings",
+    //   path: "/client/settings",
+    //   icon: Settings,
+    // },
   ];
 
   const clientLogo = userDetail?.logo
@@ -81,40 +84,43 @@ const ClientLayout = () => {
     navigate("/loginclient", { replace: true });
   };
 
-  const fetchClient = async () => {
-    try {
-      setLoading(true);
+  // const fetchClient = async () => {
+  //   try {
+  //     setLoading(true);
 
-      if (!token) {
-        navigate("/loginclient", { replace: true });
-        return;
-      }
+  //     if (!token) {
+  //       navigate("/loginclient", { replace: true });
+  //       return;
+  //     }
 
-      const response = await fetch(`${base_url}/client/verifyclient`, {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+  //     const response = await fetch(`${base_url}/client/verifyclient`, {
+  //       method: "GET",
+  //       headers: {
+  //         Authorization: `Bearer ${token}`,
+  //       },
+  //     });
 
-      const data = await response.json();
+  //     const data = await response.json();
 
-      if (response.ok && data.success) {
-        setUserDetails(data.user);
-      } else {
-        toast.error(data.message || "Please login again");
-        navigate("/loginclient", { replace: true });
-      }
-    } catch (error) {
-      toast.error("Session expired. Please login again");
-      navigate("/loginclient", { replace: true });
-    } finally {
-      setLoading(false);
-    }
-  };
+  //     if (response.ok && data.success) {
+  //       setUserDetails(data.user);
+  //     } else {
+  //       toast.error(data.message || "Please login again");
+  //       navigate("/loginclient", { replace: true });
+  //     }
+  //   } catch (error) {
+  //     toast.error("Session expired. Please login again");
+  //     navigate("/loginclient", { replace: true });
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // }; 
 
   useEffect(() => {
-    fetchClient();
+    // fetchClient();
+dispatch(getClient(token))
+
+
   }, [token]);
 
   if (loading) {
