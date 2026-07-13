@@ -503,6 +503,30 @@ const GetSubUser = ({ token, refreshKey }) => {
     };
   }, [fetchSubusers, refreshKey]);
 
+
+const handelDeleteUser = async(id)=>{
+  try {
+    const response = await fetch(`${base_url}/client/subuser/delete/${id}`,{
+      method:"DELETE",
+      headers: {
+              Authorization: `Bearer ${token}`,
+            },
+    })
+    const data = await response.json()
+    if(data.success){
+      toast.success(data.message)
+      fetchSubusers()
+    }
+    else{
+      toast.error(data.message)
+    }
+
+  } catch (error) {
+          toast.error(error?.response?.data?.message)
+
+  }
+}
+
   return (
     <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
       <div className="flex items-center justify-between gap-4 border-b border-slate-100 px-5 py-5 sm:px-6">
@@ -612,8 +636,8 @@ const GetSubUser = ({ token, refreshKey }) => {
                       {formatDate(subUser.createdAt)}
                     </td>
 
-                    <td className="px-5 py-4 text-sm text-slate-600 sm:px-6">
-                    <CopyX  className="cursor-pointer"/>
+                    <td  className="px-5 py-4 text-sm text-slate-600 sm:px-6">
+                    <CopyX  onClick={()=>handelDeleteUser(subUser._id)} className="cursor-pointer"/>
                     </td>
                   </tr>
                 ))}

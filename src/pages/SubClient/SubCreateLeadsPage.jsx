@@ -78,7 +78,7 @@ const getInputType = (key) => {
 };
 
 const SubCreateLeadsPage = () => {
-  const { token } = useSelector((state) => state.subuser);
+  const { token,user } = useSelector((state) => state.subuser);
 
   const [fields, setFields] = useState([]);
   const [formData, setFormData] = useState({});
@@ -131,7 +131,7 @@ const SubCreateLeadsPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+// 
     try {
       setSubmitLoading(true);
       setError("");
@@ -149,7 +149,7 @@ const SubCreateLeadsPage = () => {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({...formData,subclientid:user._id}),
       });
 
       const data = await response.json();

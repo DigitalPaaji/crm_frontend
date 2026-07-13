@@ -369,7 +369,7 @@ const getPageTitle = (pathname) => {
 
 const getImageUrl = (path) => {
   if (!path) {
-    return "";
+    return "dummy.webp";
   }
 
  return `${io_url}${path}`

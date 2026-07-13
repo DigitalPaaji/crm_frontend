@@ -75,7 +75,7 @@ const {info:userDetail,client,isLoading:loading,isError} = useSelector(state=>st
 
   const clientLogo = userDetail?.logo
     ? `${io_url}${userDetail.logo}`
-    : "/logo.webp";
+    : "/dummy.webp";
 
   const clientName = userDetail?.agencyname || userDetail?.ownername || "Client";
 

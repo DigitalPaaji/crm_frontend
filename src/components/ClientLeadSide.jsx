@@ -12,6 +12,8 @@ import {
   Building2,
 } from "lucide-react";
 import { base_url } from "./utlis";
+import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 
 const labelMap = {
   name: "Name",
@@ -140,7 +142,7 @@ const ClientLeadSide = ({ id, token, onClose }) => {
   const [lead, setLead] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-
+ const navigate = useNavigate()
   const fetchLead = async () => {
     try {
       setLoading(true);
@@ -184,6 +186,29 @@ const ClientLeadSide = ({ id, token, onClose }) => {
       return true;
     });
   }, [lead]);
+
+
+  const handelDeletelead= async()=>{
+    try {
+      const response= await fetch(`${base_url}/leadclient/delete/${id}`,{
+        method:"DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+
+      const data = await response.json();
+      if(data.success){
+toast.success(data.message)
+navigate(-1);
+
+}else{
+        toast.error(data.message)
+      }
+    } catch (error) {
+      toast.error(error?.response?.data?.message)
+    }
+  }
 
   return (
     <div className="  ">
@@ -290,6 +315,9 @@ const ClientLeadSide = ({ id, token, onClose }) => {
                 {lead._id}
               </p>
             </div>
+            <div className="my-4 text-center">
+              <button onClick={handelDeletelead} className="bg-amber-800 text-white p-2  px-4 rounded-md cursor-pointer">Delete</button>
+              </div>
           </div>
         )}
       </div>
