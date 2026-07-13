@@ -131,9 +131,9 @@ toast.success(data.message)
 
 
 
-            <Link
+            <a
                 // key={role.id}
-                to={"/loginclient"}
+              href={"/#/loginclient"}
                 // onClick={() => {setActiveRole(role.id),setEmail(""),setPassword("")}}
                 className={`text-left flex flex-col p-6 rounded-2xl border-2 transition-all duration-300 border-gray-200 bg-white hover:border-indigo-300 hover:shadow-sm`}
               >
@@ -152,7 +152,7 @@ toast.success(data.message)
                 <p className="text-sm text-gray-500 leading-relaxed">
                 Client portal for viewing projects, requests, reports, and updates.
                 </p>
-              </Link>
+              </a>
 
  {/* {
     id: 'agency',
