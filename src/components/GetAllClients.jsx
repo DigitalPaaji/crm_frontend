@@ -3,6 +3,7 @@ import {
   Building2,
   CalendarDays,
   Globe2,
+  LayersPlus,
   Loader2,
   Mail,
   RefreshCw,
@@ -13,7 +14,7 @@ import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { base_url } from "./utlis";
 
-const GetAllClients = () => {
+const GetAllClients = ({setCreatClientToggle}) => {
   const { token } = useSelector((state) => state.token);
 
   const [clients, setClients] = useState([]);
@@ -207,12 +208,12 @@ const GetAllClients = () => {
               Manage client access, website status and sub-users.
             </p>
           </div>
-
+<div>
           <button
             type="button"
             onClick={fetchAllClients}
             disabled={loading}
-            className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 text-sm font-medium text-slate-700 shadow-sm transition hover:border-slate-300 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
+            className="inline-flex h-10 mx-5 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 text-sm font-medium text-slate-700 shadow-sm transition hover:border-slate-300 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
           >
             <RefreshCw
               size={16}
@@ -220,6 +221,19 @@ const GetAllClients = () => {
             />
             Refresh
           </button>
+          <button
+            type="button"
+            onClick={()=>setCreatClientToggle(true)}
+            disabled={loading}
+            className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 text-sm font-medium text-slate-700 shadow-sm transition hover:border-slate-300 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            <LayersPlus
+              size={16}
+              className={loading ? "animate-spin" : ""}
+            />
+            Create
+          </button>
+          </div>
         </div>
 
         {/* Stats */}

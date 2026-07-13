@@ -1,16 +1,18 @@
-import React from 'react'
+import React, { useState } from 'react'
 import CreateClientCompo from '../../components/CreateClientCompo'
 import GetAllClients from '../../components/GetAllClients'
 
 const CreaetClients = () => {
+  const [createClientToggle,setCreatClientToggle]=useState(false)
   return (
     <div>
 
-{/* <CreateClientCompo /> */}
+{createClientToggle ? 
+ <CreateClientCompo  setCreatClientToggle={setCreatClientToggle} />
+:
+<GetAllClients setCreatClientToggle={setCreatClientToggle} />
 
-<GetAllClients />
-
-
+}
 
 
     </div>

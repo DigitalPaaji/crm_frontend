@@ -14,7 +14,7 @@ import {
 import { base_url } from "./utlis";
 import { useSelector } from "react-redux";
 
-const CreateClientCompo = () => {
+const CreateClientCompo = ({setCreatClientToggle}) => {
   const [formData, setFormData] = useState({
     ownername: "",
     agencyname: "",
@@ -166,8 +166,8 @@ const { token } = useSelector((state) => state.token);
                   icon={<CalendarDays size={18} />}
                 />
               </div>
-
-              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+<div className="flex justify-between items-center mt-8">
+              <div className=" flex flex-col gap-3 sm:flex-row">
                 <button
                   type="submit"
                   disabled={loading}
@@ -203,6 +203,8 @@ const { token } = useSelector((state) => state.token);
                 >
                   Reset Form
                 </button>
+              </div>
+              <div onClick={()=>setCreatClientToggle(false)} className="bg-red-600 text-white font-medium px-4 py-2 rounded-lg cursor-pointer">Cancel</div>
               </div>
             </div>
 
