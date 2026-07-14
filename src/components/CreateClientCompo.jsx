@@ -129,12 +129,12 @@ const { token } = useSelector((state) => state.token);
                 />
 
                 <InputBox
-                  label="Agency Name"
+                  label="Company Name"
                   name="agencyname"
                   value={formData.agencyname}
                   onChange={handleChange}
                   icon={<Building2 size={18} />}
-                  placeholder="Enter agency name"
+                  placeholder="Enter Company name"
                 />
 
                 <InputBox
