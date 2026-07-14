@@ -4,10 +4,12 @@ import React, {
   useMemo,
   useState,
 } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { base_url } from "../../components/utlis";
 import { toast } from "react-toastify";
-import { CopyX } from "lucide-react";
+import { CopyX, Eye, EyeOff, View } from "lucide-react";
+import { addUser } from "../../store/SubClient";
+import { useNavigate } from "react-router-dom";
 
 const ClientUser = () => {
   const { info, client, isLoading, isError } = useSelector(
@@ -90,7 +92,7 @@ const CreateSubuser = ({ info, token, onCreated }) => {
   const [submitLoading, setSubmitLoading] = useState(false);
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
-
+ const [showPassord,setShowPassword]=useState(false)
   const permissions = useMemo(() => {
     const permissionList = [
       {
@@ -299,15 +301,30 @@ const CreateSubuser = ({ info, token, onCreated }) => {
           autoComplete="email"
         />
 
-        <InputField
-          label="Password"
-          name="password"
-          type="password"
-          placeholder="Minimum 6 characters"
-          value={subUserData.password}
-          onChange={handleInput}
-          autoComplete="new-password"
-        />
+         <div className="relative">
+      <label
+        htmlFor={"password"}
+        className="mb-2 block text-sm font-semibold text-slate-700"
+      >
+        Password
+      </label>
+
+      <input
+        id={"password"}
+        name={"password"}
+        type={showPassord?"text":"password"}
+        value={subUserData.password}
+        placeholder="Minimum 6 characters"
+        onChange={handleInput}
+        autoComplete="new-password"
+        className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+      />
+<div className="absolute bottom-3 right-2 cursor-pointer"  onClick={()=>setShowPassword(prev=>(!prev))}>
+  {showPassord ? <Eye /> : 
+  <EyeOff />}
+</div>
+
+    </div>
 
         <div>
           <div className="mb-3 flex items-center justify-between gap-3">
@@ -443,7 +460,8 @@ const GetSubUser = ({ token, refreshKey }) => {
   const [subUsers, setSubUsers] = useState([]);
   const [fetchLoading, setFetchLoading] = useState(true);
   const [error, setError] = useState("");
-
+const navigation =useNavigate()
+const dispatch = useDispatch()
   const fetchSubusers = useCallback(
     async (signal) => {
       if (!token) {
@@ -526,6 +544,26 @@ const handelDeleteUser = async(id)=>{
 
   }
 }
+const handelgotoUser = async(id)=>{
+    try {
+      const  response = await fetch(`${base_url}/client/gosubuserclient/${id}`,{
+        method:"GET",
+         headers: {
+          Authorization: `Bearer ${token}`,
+          
+        },
+      })
+      const data = await response.json();
+      if(data.success){
+       dispatch(addUser(data))
+       navigation("/sub-client")
+      }else{
+        toast.error(data.message)
+      }
+    } catch (error) {
+       toast.error(error?.response?.data?.message)
+    }
+  }
 
   return (
     <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
@@ -594,6 +632,7 @@ const handelDeleteUser = async(id)=>{
                   <TableHeading>Last login</TableHeading>
                   <TableHeading>Created</TableHeading>
                  <TableHeading>Delete</TableHeading>
+                 <TableHeading>View</TableHeading>
 
                 </tr>
               </thead>
@@ -639,6 +678,10 @@ const handelDeleteUser = async(id)=>{
                     <td  className="px-5 py-4 text-sm text-slate-600 sm:px-6">
                     <CopyX  onClick={()=>handelDeleteUser(subUser._id)} className="cursor-pointer"/>
                     </td>
+                    <td className=" h-full ">
+
+                          <View className="cursor-pointer" onClick={()=>handelgotoUser(subUser._id)} />
+                        </td>
                   </tr>
                 ))}
               </tbody>
