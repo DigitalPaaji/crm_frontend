@@ -3,7 +3,8 @@ const initialState ={
     client:null,
     user:null,
     token:null,
-    isUser:false
+    isUser:false,
+    isClient:false
 }
 
 const SubuserSlice = createSlice({
@@ -15,7 +16,7 @@ const SubuserSlice = createSlice({
         state.client= action.payload.client
         state.user= action.payload.user
         state.token= action.payload.token
-
+        state.isClient= action.payload?.isClient || false
 
 
     }

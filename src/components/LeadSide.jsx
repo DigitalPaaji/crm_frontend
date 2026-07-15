@@ -126,15 +126,24 @@ const LeadSide = ({ token, id }) => {
     }
   };
 
-  const formatDate = (date) => {
-    if (!date) return "No date";
+ const formatDate = (date) => {
+  if (!date) return "No date";
 
-    return new Intl.DateTimeFormat("en-IN", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-    }).format(new Date(date));
-  };
+  const parsedDate = new Date(date);
+
+  if (Number.isNaN(parsedDate.getTime())) {
+    return "Invalid date";
+  }
+
+  return new Intl.DateTimeFormat("en-IN", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: true,
+  }).format(parsedDate);
+};
 
   const formatDateTime = (date) => {
     if (!date) return "";
@@ -244,21 +253,22 @@ const LeadSide = ({ token, id }) => {
         />
 
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-          <div className="relative flex-1">
+          <label htmlFor="timedate" className="relative flex-1">
             <CalendarDays
               size={17}
               className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
             />
 
             <input
-              type="date"
+            id="timedate"
+              type="datetime-local"
               name="nextFollowUp"
               value={notesData.nextFollowUp}
               onChange={handleInputChange}
               min={new Date().toISOString().split("T")[0]}
               className="h-11 w-full rounded-xl border border-slate-200 bg-white pl-10 pr-3 text-sm text-slate-800 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
             />
-          </div>
+          </label>
 
           <label className="flex h-11 cursor-pointer items-center justify-between gap-4 rounded-xl border border-slate-200 px-4">
             <span className="flex items-center gap-2 text-sm text-slate-700">
@@ -275,7 +285,7 @@ const LeadSide = ({ token, id }) => {
             />
 
             <div className="relative h-6 w-11 rounded-full bg-slate-200 transition peer-checked:bg-blue-600">
-              <span className="absolute left-1 top-1 h-4 w-4 rounded-full bg-white shadow transition-transform peer-checked:translate-x-5" />
+              <span className={`absolute duration-300  ${notesData.reminderSent ? "right-1":"left-1"} top-1 h-4 w-4 rounded-full bg-white shadow transition-transform peer-checked:translate-x-5`} />
             </div>
           </label>
 

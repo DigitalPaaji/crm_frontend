@@ -555,7 +555,7 @@ const handelgotoUser = async(id)=>{
       })
       const data = await response.json();
       if(data.success){
-       dispatch(addUser(data))
+       dispatch(addUser({...data,isClient:true}))
        navigation("/sub-client")
       }else{
         toast.error(data.message)
