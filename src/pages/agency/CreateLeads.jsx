@@ -4,7 +4,8 @@ import {
   MapPin, Briefcase, GraduationCap, Link2, 
   FileText, Save ,Plus, Eye, X, 
   FileSpreadsheet,
-  UploadCloud
+  UploadCloud,
+  Download
 } from 'lucide-react';
 
 import { useSelector } from 'react-redux';
@@ -198,88 +199,163 @@ else{
     </div>
   </div>}
 
- {uploadXl && 
- <div className="fixed inset-0 z-50 flex items-center justify-center w-full h-full p-4 bg-gray-900/50 backdrop-blur-sm">
-      {/* Popup Container */}
-      <div className="relative w-full max-w-sm bg-white rounded-2xl shadow-2xl overflow-hidden">
-        
-        {/* Close Button */}
-        <button
-          onClick={() => setUploadXl(false)}
-          className="absolute top-4 right-4 p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
-        >
-          <X className="w-5 h-5" />
-        </button>
+{uploadXl && (
+  <div className="fixed inset-0 z-50 flex h-full w-full items-center justify-center bg-gray-900/50 p-4 backdrop-blur-sm">
 
-        {/* Content */}
-        <div className="p-6 text-center">
-          <div className="w-12 h-12 mx-auto mb-4 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center">
-            <FileSpreadsheet className="w-6 h-6" />
+    <div className="relative w-full max-w-md overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-2xl dark:border-gray-700 dark:bg-gray-900">
+
+      {/* Header */}
+      <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4 dark:border-gray-700">
+        <div className="flex items-center gap-3">
+          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-100 text-blue-600 dark:bg-blue-900/40 dark:text-blue-400">
+            <FileSpreadsheet className="h-6 w-6" />
           </div>
 
-          <h3 className="text-xl font-bold text-gray-900 mb-2">
-            Upload Excel File
-          </h3>
-          <p className="text-sm text-gray-500 mb-6">
-            Please upload your .xlsx or .csv file below.
-          </p>
-
-          {/* Upload Area */}
-          <div className="mb-6">
-            <label
-              htmlFor="xl"
-              className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-xl cursor-pointer bg-gray-50 hover:bg-blue-50 hover:border-blue-400 transition-colors"
-            >
-              <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                <UploadCloud className="w-8 h-8 text-gray-400 mb-2" />
-                {selectedFile ? (
-                  <p className="text-sm font-medium text-blue-600 truncate max-w-[200px]">
-                    {selectedFile.name}
-                  </p>
-                ) : (
-                  <>
-                    <p className="mb-1 text-sm text-gray-500">
-                      <span className="font-semibold text-blue-600">Click to upload</span> or drag and drop
-                    </p>
-                    <p className="text-xs text-gray-500">XLSX, XLS, or CSV</p>
-                  </>
-                )}
-              </div>
-              <input
-                id="xl"
-                type="file"
-                className="hidden"
-                accept=".xlsx, .xls, .csv"
-                onChange={handleFileChange}
-              />
-            </label>
-          </div>
-
-          {/* Buttons */}
-          <div className="flex gap-3 w-full">
-            <button
-              onClick={() => setUploadXl(false)}
-              className="flex-1 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-            >
-              Cancel
-            </button>
-            <button
-              onClick={handleUpload}
-              disabled={!selectedFile}
-              className={`flex-1 px-4 py-2 text-sm font-medium text-white rounded-lg transition-colors ${
-                selectedFile
-                  ? 'bg-blue-600 hover:bg-blue-700'
-                  : 'bg-blue-300 cursor-not-allowed'
-              }`}
-            >
-              Upload
-            </button>
+          <div className="text-left">
+            <h3 className="text-lg font-bold text-gray-900 dark:text-white">
+              Upload Excel File
+            </h3>
+            <p className="text-xs text-gray-500 dark:text-gray-400">
+              Import your leads in bulk
+            </p>
           </div>
         </div>
+
+        <button
+          type="button"
+          onClick={() => {
+            setUploadXl(false);
+            setSelectedFile(null);
+          }}
+          className="rounded-lg p-2 text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 dark:hover:bg-gray-800 dark:hover:text-white"
+        >
+          <X className="h-5 w-5" />
+        </button>
+      </div>
+
+      {/* Content */}
+      <div className="p-6">
+
+        <p className="mb-5 text-sm leading-6 text-gray-600 dark:text-gray-400">
+          Upload your lead data using an Excel or CSV file. Download the sample
+          template first to ensure your columns are formatted correctly.
+        </p>
+
+        {/* Download Sample Excel */}
+        <div className="mb-6 flex items-center justify-between gap-3 rounded-xl border border-blue-200 bg-blue-50 p-4 dark:border-blue-900 dark:bg-blue-950/30">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white text-blue-600 dark:bg-gray-800 dark:text-blue-400">
+              <FileSpreadsheet className="h-5 w-5" />
+            </div>
+
+            <div>
+              <p className="text-sm font-semibold text-gray-900 dark:text-white">
+                Sample Excel Template
+              </p>
+              <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                XLSX format · Demo data
+              </p>
+            </div>
+          </div>
+
+          <a
+            href="/demo.xlsx"
+            download="demo.xlsx"
+            className="inline-flex shrink-0 items-center gap-2 rounded-lg bg-blue-600 px-3 py-2 text-sm font-semibold text-white transition hover:bg-blue-700 active:scale-95"
+          >
+            <Download className="h-4 w-4" />
+            Download
+          </a>
+        </div>
+
+        {/* Upload Area */}
+        <div className="mb-6">
+          <label
+            htmlFor="xl"
+            className={`flex min-h-36 cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed p-5 text-center transition
+              ${
+                selectedFile
+                  ? "border-green-400 bg-green-50 dark:border-green-700 dark:bg-green-950/20"
+                  : "border-gray-300 bg-gray-50 hover:border-blue-400 hover:bg-blue-50 dark:border-gray-700 dark:bg-gray-800/60 dark:hover:border-blue-500 dark:hover:bg-gray-800"
+              }`}
+          >
+            {selectedFile ? (
+              <>
+                <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-green-100 text-green-600 dark:bg-green-900/40 dark:text-green-400">
+                  <FileSpreadsheet className="h-6 w-6" />
+                </div>
+
+                <p className="max-w-full truncate text-sm font-semibold text-green-700 dark:text-green-400">
+                  {selectedFile.name}
+                </p>
+
+                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                  File selected successfully
+                </p>
+
+                <span className="mt-3 text-xs font-medium text-blue-600 dark:text-blue-400">
+                  Click to change file
+                </span>
+              </>
+            ) : (
+              <>
+                <UploadCloud className="mb-3 h-9 w-9 text-gray-400 dark:text-gray-500" />
+
+                <p className="text-sm text-gray-600 dark:text-gray-300">
+                  <span className="font-semibold text-blue-600 dark:text-blue-400">
+                    Click to upload
+                  </span>{" "}
+                  or drag and drop
+                </p>
+
+                <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                  XLSX, XLS or CSV
+                </p>
+              </>
+            )}
+
+            <input
+              id="xl"
+              type="file"
+              className="hidden"
+              accept=".xlsx,.xls,.csv"
+              onChange={handleFileChange}
+            />
+          </label>
+        </div>
+
+        {/* Footer Buttons */}
+        <div className="flex gap-3">
+          <button
+            type="button"
+            onClick={() => {
+              setUploadXl(false);
+              setSelectedFile(null);
+            }}
+            className="flex-1 rounded-xl border border-gray-300 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 transition hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+          >
+            Cancel
+          </button>
+
+          <button
+            type="button"
+            onClick={handleUpload}
+            disabled={!selectedFile}
+            className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700 active:scale-[0.98] disabled:cursor-not-allowed disabled:bg-blue-300 disabled:hover:bg-blue-300 dark:disabled:bg-blue-900/50"
+          >
+            <UploadCloud className="h-4 w-4" />
+            Upload File
+          </button>
+        </div>
+
+        {/* Footer Note */}
+        <p className="mt-4 text-center text-xs text-gray-400 dark:text-gray-500">
+          Please ensure your Excel column names match the provided template.
+        </p>
       </div>
     </div>
- 
- }
+  </div>
+)}
 
 
 
