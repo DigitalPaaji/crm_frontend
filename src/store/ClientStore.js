@@ -5,7 +5,7 @@ import { base_url } from "../components/utlis";
 export const getClient = createAsyncThunk("/client/get",async(token,{rejectWithValue})=>{
     try {
          if (!token) {
-        location.href="/loginclient"
+        location.href="/#/loginclient"
         return;
       }
 

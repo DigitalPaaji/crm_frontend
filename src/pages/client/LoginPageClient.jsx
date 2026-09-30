@@ -16,6 +16,7 @@ import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { addUser } from "../../store/SubClient";
+import { setToken } from "../../store/TokenSlice";
 
 const LoginPageClient = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -49,8 +50,8 @@ email:formData.email,password:formData.password
   const data = await response.json()
 
   if(data.success){
-     localStorage.setItem("token",data.token)
-toast.success(data.message)
+    dispatch(setToken(data.token))
+     toast.success(data.message)
 //  navigation("/client");
  location.href="/#/client"
 }else{

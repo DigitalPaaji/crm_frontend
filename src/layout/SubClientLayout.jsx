@@ -4,6 +4,7 @@ import {
   NavLink,
   useLocation,
   useNavigate,
+  Link,
 } from "react-router-dom";
 import { useSelector } from "react-redux";
 import {
@@ -23,7 +24,7 @@ const SubClientLayout = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const { client, user, token, isUser } = useSelector(
+  const { client, user, token, isUser,isClient } = useSelector(
     (state) => state.subuser
   );
 
@@ -295,7 +296,7 @@ const SubClientLayout = () => {
               </p>
 
               <h2 className="text-lg font-bold text-slate-900">
-                {getPageTitle(location.pathname)}
+                {isClient ? <Link to={"/client/users"}>GO to client</Link>  :getPageTitle(location.pathname)}
               </h2>
             </div>
           </div>

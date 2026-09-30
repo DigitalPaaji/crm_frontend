@@ -9,10 +9,13 @@ import {
   RefreshCw,
   Search,
   Users,
+  View,
 } from "lucide-react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { base_url } from "./utlis";
+import {  setToken } from "../store/TokenSlice";
+import { useNavigate } from "react-router-dom";
 
 const GetAllClients = ({setCreatClientToggle}) => {
   const { token } = useSelector((state) => state.token);
@@ -22,7 +25,8 @@ const GetAllClients = ({setCreatClientToggle}) => {
   const [updatingId, setUpdatingId] = useState("");
   const [search, setSearch] = useState("");
   const [error, setError] = useState("");
-
+  const navigation = useNavigate()
+const dispatch = useDispatch()
   const fetchAllClients = useCallback(async () => {
     if (!token) return;
 
@@ -146,6 +150,29 @@ const GetAllClients = ({setCreatClientToggle}) => {
       );
     });
   }, [clients, search]);
+
+  const handelgotoUser = async(id)=>{
+    try {
+      const  response = await fetch(`${base_url}/client/goclient/${id}`,{
+        method:"GET",
+         headers: {
+          Authorization: `Bearer ${token}`,
+          
+        },
+      })
+      const data = await response.json();
+      if(data.success){
+        dispatch(setToken(data.token))
+            //  localStorage.setItem("token",)
+         navigation("/client");
+        //  location.href="/#/client"
+      }else{
+        toast.error(data.message)
+      }
+    } catch (error) {
+      
+    }
+  }
 
   const formatDate = (date) => {
     if (!date) return "Not available";
@@ -336,6 +363,8 @@ const GetAllClients = ({setCreatClientToggle}) => {
                     <TableHeading>Website</TableHeading>
                     <TableHeading>Account status</TableHeading>
                     <TableHeading>Last login</TableHeading>
+                    <TableHeading>View</TableHeading>
+
                   </tr>
                 </thead>
 
@@ -491,6 +520,10 @@ const GetAllClients = ({setCreatClientToggle}) => {
                           <p className="mt-1 text-xs text-slate-400">
                             Added {formatDate(client.createdAt)}
                           </p>
+                        </td>
+                        <td className=" h-full ">
+
+                          <View className="cursor-pointer" onClick={()=>handelgotoUser(client._id)} />
                         </td>
                       </tr>
                     );
