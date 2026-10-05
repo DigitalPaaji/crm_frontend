@@ -23,7 +23,7 @@ import { Link } from 'react-router-dom';
 
 const MyLeads = () => {
   const { token } = useSelector((state) => state.token);
-  
+  const [showPhone,setShowPhone]=useState(false)
   const [leads, setLeads] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -197,7 +197,7 @@ const MyLeads = () => {
                  <thead>
                    <tr className="bg-gray-50 border-b border-gray-200">
                      <th className="px-6 py-4 text-sm font-semibold text-gray-600">Contact Details</th>
-                     <th className="px-6 py-4 text-sm font-semibold text-gray-600">Phone</th>
+                     <th className="px-6 py-4 text-sm font-semibold text-gray-600" onClick={()=>setShowPhone(prev=>!prev)}>Phone</th>
                      <th className="px-6 py-4 text-sm font-semibold text-gray-600">Source</th>
                      <th className="px-6 py-4 text-sm font-semibold text-gray-600">Lead By</th>
                      <th className="px-6 py-4 text-sm font-semibold text-gray-600"> Create on</th>
@@ -233,10 +233,16 @@ const MyLeads = () => {
      
                          {/* Phone */}
                          <td className="px-6 py-4">
-                           <div className="flex items-center gap-2 text-gray-700">
+                          
+                          {showPhone ?  <div className="flex items-center gap-2 text-gray-700">
                              <Phone className="w-4 h-4 text-gray-400" />
                              <span className="font-medium text-sm">{lead.phone || 'N/A'}</span>
                            </div>
+                           :
+                           <div>
+                            ..........
+                           </div>
+                           }
                          </td>
      
                          {/* DOB */}
@@ -250,13 +256,13 @@ const MyLeads = () => {
                            </div>
                          </td>
      
-                         {/* Lead By */}
+                     
                          <td className="px-6 py-4">
-                           <div className="flex items-center gap-1.5 text-sm text-gray-600 capitalize">
-                             {lead.createdby?.name || 'Unknown'}
+                            <div className="flex items-center gap-1.5 text-sm text-gray-600 capitalize">
+                             {lead?.leadfor || 'Unknown'}
                            </div>
                          </td>
-     {console.log(lead)}
+  
                        <td className="px-6 py-4">
                            <div className="flex items-center gap-2 text-gray-600 text-sm">
                              <Calendar className="w-4 h-4 text-gray-400" />

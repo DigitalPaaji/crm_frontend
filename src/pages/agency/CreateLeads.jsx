@@ -5,7 +5,8 @@ import {
   FileText, Save ,Plus, Eye, X, 
   FileSpreadsheet,
   UploadCloud,
-  Download
+  Download,
+  LucideHeadset
 } from 'lucide-react';
 
 import { useSelector } from 'react-redux';
@@ -23,10 +24,11 @@ const CreateLeads = () => {
     name: '',
     email: '',
     phone: '',
+    leadfor:"website",
     // dob: '',
     // mother: '',
     // father: '',
-    address: '',
+  
     designation: '',
     // education: null,
     source: '',
@@ -550,7 +552,7 @@ else{
           {/* Full Width Fields */}
           <div className="space-y-6 mt-6">
             {/* Address */}
-            <div className="relative">
+            {/* <div className="relative">
               <label className="block text-sm font-medium text-gray-700 mb-1">Full Address</label>
               <div className="relative">
                 <div className="absolute top-3 left-3 pointer-events-none">
@@ -565,7 +567,26 @@ else{
                   placeholder="Enter complete residential address"
                 />
               </div>
+            </div> */}
+
+             <div className="relative md:col-span-2">
+              <label className="block text-sm font-medium text-gray-700 mb-1">Source</label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <LucideHeadset className="h-5 w-5 text-gray-400" />
+                </div>
+                <select name="leadfor" id="" value={formData.leadfor} onChange={handleChange}                   className="pl-10 w-full rounded-lg border border-gray-300 bg-white py-2.5 px-3 text-sm outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"
+>
+<option value="website">Website</option>
+<option value="social media marketing">Social media marketing</option>
+<option value="creative video editing">Creative Video Editing</option>
+<option value="meta ads">Meta ads</option>
+
+            </select>
+               
+              </div>
             </div>
+            
 
             {/* Notes */}
             <div className="relative">

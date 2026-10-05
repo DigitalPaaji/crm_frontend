@@ -93,6 +93,8 @@ const LeadPage = () => {
     }
   };
 
+
+
   useEffect(() => {
     if (leadid) {
       fetchLead(leadid);
@@ -548,6 +550,9 @@ if(deleteID){
               onClick={() =>handelFollowUp()}
               className=" text-nowrap px-4 py-2 bg-purple-600 cursor-pointer text-white rounded-lg text-sm font-medium hover:bg-purple-700 transition-colors shadow-sm h-fit"
             >
+
+
+
               Follow up
             </button>
               </div>
