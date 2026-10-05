@@ -35,6 +35,7 @@ const LeadPage = () => {
     designation: "",
     education: "",
     status: "",
+    leadfor: "",
     source: "",
     notes: "",
   });
@@ -80,6 +81,7 @@ const LeadPage = () => {
           designation: fetchedLead.designation || "",
           education: fetchedLead.education || "",
           status: fetchedLead.status || "",
+          leadfor: fetchedLead.leadfor || "",
           source: fetchedLead.source || "",
           notes: fetchedLead.notes || "",
         });
@@ -468,6 +470,27 @@ if(deleteID){
                     </div>
                   </div>
                 </div>
+
+
+<div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1"> Lead For</label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <Briefcase className="h-4 w-4 text-gray-400" />
+                    </div>
+                    <select type="text" name="leadfor" value={formData.leadfor} onChange={handleChange}
+                      className="pl-10 w-full rounded-lg border border-gray-300 py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" >
+
+<option value="website">Website</option>
+<option value="social media marketing">Social media marketing</option>
+<option value="creative video editing">Creative Video Editing</option>
+<option value="meta ads">Meta ads</option>
+</select>
+
+                  </div>
+                </div>
+
+
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Designation / Role</label>
