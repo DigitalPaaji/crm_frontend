@@ -199,7 +199,7 @@ const MyLeads = () => {
                      <th className="px-6 py-4 text-sm font-semibold text-gray-600">Contact Details</th>
                      <th className="px-6 py-4 text-sm font-semibold text-gray-600" onClick={()=>setShowPhone(prev=>!prev)}>Phone</th>
                      <th className="px-6 py-4 text-sm font-semibold text-gray-600">Source</th>
-                     <th className="px-6 py-4 text-sm font-semibold text-gray-600">Lead By</th>
+                     <th className="px-6 py-4 text-sm font-semibold text-gray-600">Lead For</th>
                      <th className="px-6 py-4 text-sm font-semibold text-gray-600"> Create on</th>
                      <th className="px-6 py-4 text-sm font-semibold text-gray-600">Status</th>
                      <th className="px-6 py-4 text-sm font-semibold text-gray-600 text-right">Actions</th>
