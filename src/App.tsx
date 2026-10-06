@@ -65,6 +65,8 @@ import SubClientHomePage from "./pages/SubClient/SubClientHomePage"
 import SubCreateLeadsPage from "./pages/SubClient/SubCreateLeadsPage"
 import SubClientLeadPage from "./pages/SubClient/SubClientLeadPage"
 import SubClientSingleLead from "./pages/SubClient/SubClientSingleLead"
+import OnBoardPageAgency from "./pages/agency/OnBoardPageAgency"
+import OnBoardFullPageAgency from "./pages/agency/OnBoardFullPageAgency"
 function App(): React.JSX.Element {
 
   return (
@@ -167,7 +169,8 @@ transition={Slide}
 <Route path="/agency" element={<AgencyLAyout />}>
         {/* <Route index element={<AdminHomePage />} /> */}
         {/* <Route path="student" element={<StudentPage />} />*/}
-        
+      <Route path="on-Board" element={<OnBoardPageAgency />} />
+      <Route path="on-Board/:id" element={<OnBoardFullPageAgency />} />
       <Route path="create-leads" element={<CreateLeads />} /> 
       {/* <Route path="all-leads" element={<AllLeads />} /> */}
       <Route path="follow-up" element={<FollowUp />} />
