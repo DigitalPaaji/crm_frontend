@@ -11,12 +11,14 @@ import {
   MapPin,
   Phone,
   Search,
+  Trash,
   UserRound,
   UsersRound,
 } from "lucide-react";
 
 import { base_url } from "../../components/utlis";
 import { Link } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const OnBoardpage = () => {
   const { token } = useSelector((state) => state.token);
@@ -27,15 +29,8 @@ const OnBoardpage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
 
-  useEffect(() => {
-    if (!token) {
-      setIsLoading(false);
-      return;
-    }
 
-    const controller = new AbortController();
-
-    const fetchData = async () => {
+   const fetchData = async () => {
       try {
         setIsLoading(true);
         setError("");
@@ -45,7 +40,7 @@ const OnBoardpage = () => {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-          signal: controller.signal,
+         
         });
 
         const result = await response.json();
@@ -65,15 +60,22 @@ const OnBoardpage = () => {
         setError(error.message || "Something went wrong");
         setClients([]);
       } finally {
-        if (!controller.signal.aborted) {
+      
           setIsLoading(false);
-        }
+    
       }
     };
+  useEffect(() => {
+    if (!token) {
+      setIsLoading(false);
+      return;
+    }
+
+
+   
 
     fetchData();
 
-    return () => controller.abort();
   }, [token]);
 
   const filteredClients = useMemo(() => {
@@ -119,6 +121,31 @@ const OnBoardpage = () => {
         </div>
       </div>
     );
+  }
+
+
+
+  const handelDelteClient=async(id)=>{
+    try {setIsLoading(true)
+      const  response = await fetch(`${base_url}/onboarding/delete/${id}`,{
+         method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+      })
+      const data = await response.json()
+       if(data.success){
+          toast.success(data.message)
+          fetchData()
+       }else{
+        toast.error(date?.message)
+       }
+
+    } catch (error) {
+      toast.error(error?.response?.date?.message)
+    }finally{
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -318,7 +345,7 @@ const OnBoardpage = () => {
                         </div>
                       </td>
 
-                      <td className="px-5 py-4 text-right">
+                      <td className="px-5 py-4 text-right space-x-1.5">
                         <Link
                         
                           to={`${client._id}`}
@@ -327,6 +354,15 @@ const OnBoardpage = () => {
                           <Eye size={16} />
                           View
                         </Link>
+                        <button
+                        onClick={()=>handelDelteClient(client._id)}
+                        
+                       
+                          className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition hover:border-green-200 hover:bg-green-50 hover:text-green-600"
+                        >
+                          <Trash size={16} />
+                          Delete
+                        </button>
                       </td>
                     </tr>
                   ))}
