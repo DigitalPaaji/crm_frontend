@@ -156,7 +156,7 @@ const FollowUp = () => {
         </div>
         
         {/* Status Filter */}
-        <div className="relative min-w-[200px]">
+        {/* <div className="relative min-w-[200px]">
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
             <Filter className="h-4 w-4 text-gray-400" />
           </div>
@@ -174,7 +174,7 @@ const FollowUp = () => {
             <option value="7">7 Days</option>
            
           </select>
-        </div>
+        </div> */}
       </div>
 
       {/* Leads Table */}
@@ -185,9 +185,10 @@ const FollowUp = () => {
               <tr className="bg-gray-50 border-b border-gray-200">
                 <th className="px-6 py-4 text-sm font-semibold text-gray-600">Contact Details</th>
                 <th className="px-6 py-4 text-sm font-semibold text-gray-600">Phone</th>
-                <th className="px-6 py-4 text-sm font-semibold text-gray-600">DOB</th>
-                <th className="px-6 py-4 text-sm font-semibold text-gray-600">Source</th>
-                <th className="px-6 py-4 text-sm font-semibold text-gray-600">Lead By</th>
+                <th className="px-6 py-4 text-sm font-semibold text-gray-600">Lead For</th>
+                {/* <th className="px-6 py-4 text-sm font-semibold text-gray-600">Source</th> */}
+                <th className="px-6 py-4 text-sm font-semibold text-gray-600">Last Followup</th>
+                <th className="px-6 py-4 text-sm font-semibold text-gray-600">Next Followup</th>
                 <th className="px-6 py-4 text-sm font-semibold text-gray-600">Status</th>
                 <th className="px-6 py-4 text-sm font-semibold text-gray-600 text-right">Actions</th>
               </tr>
@@ -222,27 +223,66 @@ const FollowUp = () => {
                       <div className="flex items-center gap-2 text-gray-600 text-sm">
                         <Calendar className="w-4 h-4 text-gray-400" />
                         <span>
-                          {lead.dob 
-                            ? new Date(lead.dob).toLocaleDateString() 
-                            : 'Not specified'}
+                          {lead.leadfor}
                         </span>
                       </div>
                     </td>
 
                     {/* Source */}
-                    <td className="px-6 py-4">
+                    {/* <td className="px-6 py-4">
                       <div className="flex items-center gap-1.5 text-sm text-gray-600 capitalize">
                         <Globe className="w-4 h-4 text-gray-400" />
                         {lead.source || 'Unknown'}
                       </div>
-                    </td>
+                    </td> */}
 
                     {/* Lead By */}
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-1.5 text-sm text-gray-600 capitalize">
-                        {lead.createdby?.name || 'Unknown'}
+                           {lead.lastFollowup?.date
+                            ? new Date(lead.lastFollowup?.date).toLocaleDateString() 
+                            : 'Not specified'}
+                       
                       </div>
                     </td>
+                  <td className="px-6 py-4">
+  {lead.nextFollowup?.date ? (
+    (() => {
+      const today = new Date();
+      const followupDate = new Date(lead.nextFollowup.date);
+
+      // Remove time part
+      today.setHours(0, 0, 0, 0);
+      followupDate.setHours(0, 0, 0, 0);
+
+      const diffTime = followupDate - today;
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+      let colorClass = "";
+
+      if (diffDays <= 0) {
+        // Today or overdue
+        colorClass = "text-red-600 bg-red-50";
+      } else if (diffDays <= 3) {
+        // 1-3 days later
+        colorClass = "text-yellow-600 bg-yellow-50";
+      } else {
+        // More than 3 days
+        colorClass = "text-green-600 bg-green-50";
+      }
+
+      return (
+        <div
+          className={`inline-flex items-center rounded-lg px-2.5 py-1 text-sm font-medium ${colorClass}`}
+        >
+          {followupDate.toLocaleDateString()}
+        </div>
+      );
+    })()
+  ) : (
+    <span className="text-gray-400">Not specified</span>
+  )}
+</td>
 
                     {/* Status */}
                     <td className="px-6 py-4">

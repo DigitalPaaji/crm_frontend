@@ -15,11 +15,12 @@ const LeadPage = () => {
   const { token } = useSelector((state) => state.token);
   const {info} = useSelector((state)=>state.user)
   const [followUpNote,setFollowUpNote]=useState("")
+  const [followUpcommingDate,setFollowUpcommingDate]=useState("")
 
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [newFollowupDate, setNewFollowupDate] = useState("");
+  // const [newFollowupDate, setNewFollowupDate] = useState("");
    const [deleteID,setDeleteID]=useState(null)
  
   const [leadMeta, setLeadMeta] = useState(null);
@@ -140,11 +141,6 @@ if(data.success){
      }
   };
   const handelFollowUp = async () => {
-
-    
-
-
-    
     try {
       const response = await fetch(`${base_url}/leads/update-followup/${leadid}`, {
         method: "PUT",
@@ -152,7 +148,7 @@ if(data.success){
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`
         },
-        body: JSON.stringify({date:new Date(Date.now()),note:followUpNote})
+        body: JSON.stringify({date:new Date(Date.now()),note:followUpNote,followUpcommingDate})
       });
      const data = await response.json();
   
@@ -568,16 +564,23 @@ if(deleteID){
 
               <div className='flex  gap-3 items-end'>
                 <textarea name="" onChange={(e)=>setFollowUpNote(e.target.value)} value={followUpNote} id="" className='w-full border p-2 border-gray-600/40 ' rows={4}  placeholder='Note....'></textarea>
-                  <button 
+                  
+                  <div className='text-center'  >
+                 <input
+       value={followUpcommingDate}
+       onChange={(e)=>setFollowUpcommingDate(e.target.value)}
+      placeholder="Search"
+       className="mb-10 pl-[0.8em] outline-none overflow-hidden bg-[#f3f3f3] border-2 border-transparent rounded-[10px]
+            transition-all duration-500 hover:border-[#4a9dec] hover:shadow-[0_0_0_7px_rgba(74,157,236,0.2)]
+            hover:bg-white focus:border-[#4a9dec] focus:shadow-[0_0_0_7px_rgba(74,157,236,0.2)] focus:bg-white"
+       type="date"/>
+            <button 
               type="button" 
               onClick={() =>handelFollowUp()}
-              className=" text-nowrap px-4 py-2 bg-purple-600 cursor-pointer text-white rounded-lg text-sm font-medium hover:bg-purple-700 transition-colors shadow-sm h-fit"
-            >
-
-
-
-              Follow up
+              className=" text-nowrap  px-4 py-2 bg-purple-600 cursor-pointer text-white rounded-lg text-sm font-medium hover:bg-purple-700 transition-colors shadow-sm h-fit">
+             Follow up
             </button>
+            </div>
               </div>
 
             
