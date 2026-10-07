@@ -67,7 +67,7 @@ import SubClientLeadPage from "./pages/SubClient/SubClientLeadPage"
 import SubClientSingleLead from "./pages/SubClient/SubClientSingleLead"
 import OnBoardPageAgency from "./pages/agency/OnBoardPageAgency"
 import OnBoardFullPageAgency from "./pages/agency/OnBoardFullPageAgency"
-import AgencyHomePage from "./pages/agency/AgencyHomePAge"
+import AgencyHomePage from "./pages/agency/AgencyHomePage"
 function App(): React.JSX.Element {
 
   return (
