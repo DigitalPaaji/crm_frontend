@@ -25,7 +25,7 @@ const AllLeads = () => {
   const { token } = useSelector((state) => state.token);
   
   const [leads, setLeads] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true); 
   const [error, setError] = useState(null);
   
   // Search and Filter state

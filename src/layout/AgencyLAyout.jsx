@@ -35,7 +35,7 @@ const {info,isLoading,isError}= useSelector(state=>state.user)
     // { name: 'All Leads', path:'/agency/all-leads', icon: Briefcase },
     { name: 'Follow Up', path:'/agency/follow-up', icon: UserRoundPlus },
 
-  { name: 'On Board', path:'/agency/on-Board', icon: SquareDashedKanban },
+  { name: 'Client site', path:'/agency/on-Board', icon: SquareDashedKanban },
 
     { name: 'My Tasks', path:'/agency/tasks', icon: CalendarCheck },
     { name: 'Message', path:'/agency/message', icon: MessagesSquare },

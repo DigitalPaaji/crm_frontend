@@ -63,7 +63,7 @@ const {info,isLoading,isError}= useSelector(state=>state.user)
   
     },
   { name: 'Message', path:'/admin/message', icon: MessagesSquare },
-  { name: 'On Board', path:'/admin/on-Board', icon: SquareDashedKanban },
+  { name: 'Client site', path:'/admin/on-Board', icon: SquareDashedKanban },
   { name: 'Our Clients', path:'/admin/clients', icon: ClipboardPenLine  },
 
   ];
