@@ -17,7 +17,7 @@ import {
   SquareDashedKanban,
   ClipboardPenLine
 } from 'lucide-react';
-import { base_url } from '../components/utlis';
+import { base_url, portal_url } from '../components/utlis';
 import { getUser } from '../store/userSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import GetImage from '../components/GetImage';
@@ -39,32 +39,41 @@ const {info,isLoading,isError}= useSelector(state=>state.user)
       icon: LayoutDashboard,
       exact: true 
     },
-    { 
-      name: 'Students', 
-      icon: GraduationCap,
-      links: [
-        { name: "All Students", path: "/admin/student", icon: Users }
-      ] 
-    },
-    { 
-      name: 'Employees', 
-      icon: Briefcase,
-      links: [
-        { name: "All Employees", path: "/admin/employee", icon: Users }
-      ]
-    },
+  
+// VITE_PANAL_URL
+ { name: 'Academy', path:portal_url, icon: GraduationCap ,blank:true },
+
+    // { 
+    //   name: 'Students', 
+    //   icon: GraduationCap,
+    //   links: [
+    //     { name: "All Students", path: "/admin/student", icon: Users }
+    //   ] 
+    // },
+  //   { 
+  //     name: 'Employees', 
+  //     icon: Briefcase,
+  //     links: [
+  //       { name: "All Employees", path: "/admin/employee", icon: Users }
+  //     ]
+  //   },
     { 
       name: 'Agency',  
       icon: ChartNetwork,
       links: [
         { name: "All Agencies", path: "/admin/agency/", icon: Users },
-        { name: "All Leads", path: "/admin/agency/all-leads", icon: ZodiacLeo }
+        { name: "All Leads", path: "/admin/agency/all-leads", icon: ZodiacLeo },
+        { name: "Client site", path: "/admin/on-Board", icon: SquareDashedKanban }
       ]
-  
     },
   { name: 'Message', path:'/admin/message', icon: MessagesSquare },
-  { name: 'Client site', path:'/admin/on-Board', icon: SquareDashedKanban },
-  { name: 'Our Clients', path:'/admin/clients', icon: ClipboardPenLine  },
+
+
+
+
+
+  // { name: 'Client site', path:'/admin/on-Board', icon: SquareDashedKanban },
+  // { name: 'Our Clients', path:'/admin/clients', icon: ClipboardPenLine  },
 
   ];
 
@@ -234,6 +243,8 @@ useEffect(()=>{
                   <Link
                     to={item.path}
                     title={!isSidebarOpen ? item.name : ""}
+                    
+                    target={item.blank && '_blank'}
                     className={`flex items-center rounded-xl transition-all duration-200 group ${
                       isSidebarOpen ? 'gap-3 px-4 py-3' : 'justify-center py-3 px-0'
                     } ${

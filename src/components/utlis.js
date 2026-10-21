@@ -1,11 +1,11 @@
-// export const base_url = "http://localhost:8000/api/v1"
-// export const io_url = "http://localhost:8000"
+export const base_url = `${import.meta.env.VITE_API_URL}/api/v1`
+export const io_url = `${import.meta.env.VITE_API_URL}`
+export const portal_url= `${import.meta.env.VITE_PANAL_URL}`
 
 
 
-
- export const base_url = "https://crmapi.crm.digitalpaaji.com/api/v1"
-  export const io_url = "https://crmapi.crm.digitalpaaji.com"
+//  export const base_url = "https://crmapi.crm.digitalpaaji.com/api/v1"
+//   export const io_url = "https://crmapi.crm.digitalpaaji.com"
 
 
 // https://crmapi.crm.digitalpaaji.com/api/v1/insta/webhook

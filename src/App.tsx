@@ -68,6 +68,8 @@ import SubClientSingleLead from "./pages/SubClient/SubClientSingleLead"
 import OnBoardPageAgency from "./pages/agency/OnBoardPageAgency"
 import OnBoardFullPageAgency from "./pages/agency/OnBoardFullPageAgency"
 import AgencyHomePage from "./pages/agency/AgencyHomePage"
+import AcademyLeads from "./pages/academy/AcademyLeads"
+import AcademyLeadfullPage from "./pages/academy/AcademyLeadfullPage"
 function App(): React.JSX.Element {
 
   return (
@@ -100,14 +102,24 @@ transition={Slide}
  <Route path="/" element={<HomePage />} />
    <Route path="/admin" element={<AdminLayout />}>
         <Route index element={<AdminHomePage />} />
- <Route path="message" element={<MessagePage />} >
+
+
+<Route path="academy" >
+<Route  path="leads" element={<AcademyLeads />} />
+<Route  path="leads/:id" element={<AcademyLeadfullPage />} />
+
+</Route>
+
+
+
+     <Route path="message" element={<MessagePage />} >
    
 <Route index  element={<DefaultMessage />} />
 <Route path=":chatid" element={<MessageCompo />}  />
 
 
 
- </Route>
+       </Route>
 
  <Route path="on-Board" element={<OnBoardpage />} />
  <Route path="on-Board/:id" element={<OnBoardFullPage />} />
@@ -126,7 +138,7 @@ transition={Slide}
      <Route path="lead/:leadid" element={<AdminLeadPage />} />
    
         </Route> 
-   <Route path="clients" element={<CreaetClients />}  />                                                     
+      <Route path="clients" element={<CreaetClients />}  />                                                     
   
 
       </Route>
