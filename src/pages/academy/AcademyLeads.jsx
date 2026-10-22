@@ -22,7 +22,8 @@ import {
   FiUserCheck,
 } from "react-icons/fi";
 
-import { portal_url } from "../../components/utlis";
+import { agency_url } from "../../components/utlis";
+import { useSelector } from "react-redux";
 
 const ALL_STATUSES = [
   "NEW",
@@ -107,7 +108,7 @@ const formatDate = (dateStr) => {
 const AcademyLeads = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
-
+     const { token } = useSelector((state) => state.token);
   // Read filters from the URL with safe defaults.
   const page = parseInt(searchParams.get("page")) 
   const limit = parseInt(searchParams.get("limit")) 
@@ -188,7 +189,11 @@ const AcademyLeads = () => {
 
     try {
       const response = await axios.get(
-        `${portal_url}/panal/lead/getleadstatus`
+        `${agency_url}/crm/leads/getleadstatus`,{
+            headers: {
+      Authorization: `Bearer ${token}`,
+    },
+        }
       );
 
       const data = response.data;
@@ -234,7 +239,11 @@ const AcademyLeads = () => {
       if (source) params.set("source", source);
 
       const response = await axios.get(
-        `${portal_url}/panal/leads/get?${params.toString()}`
+        `${agency_url}/crm/leads/get?${params.toString()}`,{
+            headers: {
+      Authorization: `Bearer ${token}`,
+    },
+        }
       );
 
       const data = response.data;
@@ -296,7 +305,11 @@ const AcademyLeads = () => {
     try {
       // Change this URL if your backend uses a different delete route.
       const response = await axios.delete(
-        `${portal_url}/panal/leads/delete/${id}`
+        `${agency_url}/crm/leads/delete/${id}`,{
+            headers: {
+      Authorization: `Bearer ${token}`,
+    },
+        }
       );
 
       if (response.data?.success === false) {
@@ -350,7 +363,7 @@ const AcademyLeads = () => {
   );
 
   return (
-    <div className="h-screen  overflow-auto bg-gradient-to-br from-slate-50 to-blue-50 p-4 md:p-6">
+    <div className=" bg-gradient-to-br from-slate-50 to-blue-50 p-4 md:p-6">
       <div className="mx-auto max-w-[1400px]">
         {/* Header */}
         <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">

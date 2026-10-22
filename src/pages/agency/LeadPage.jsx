@@ -535,7 +535,7 @@ if(deleteID){
               <h3 className="text-sm font-semibold text-blue-800 flex items-center gap-2 mb-3">
                 <Calendar className="w-4 h-4" /> Follow-up Schedule
               </h3>
-              
+                  
               {leadMeta?.followup && leadMeta.followup.length > 0 ? (
                 <div className="mb-4 space-y-2 h-full overflow-y-auto">
                   {leadMeta.followup.map((f, index) => (

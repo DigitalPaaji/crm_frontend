@@ -20,7 +20,16 @@ import {
 import { base_url, portal_url } from '../components/utlis';
 import { getUser } from '../store/userSlice';
 import { useDispatch, useSelector } from 'react-redux';
+import { SiGoogleadsense } from "react-icons/si";
+import { IoCreate } from "react-icons/io5";
+import { FaBarsStaggered } from "react-icons/fa6";
+import { PiStudentBold } from "react-icons/pi";
+
 import GetImage from '../components/GetImage';
+import { FaChalkboardTeacher, FaUserPlus } from 'react-icons/fa';
+import { MdGridOn } from 'react-icons/md';
+import { GiGraduateCap } from "react-icons/gi";
+
 
 const AdminLayout = () => {
   const location = useLocation();
@@ -41,15 +50,23 @@ const {info,isLoading,isError}= useSelector(state=>state.user)
     },
   
 // VITE_PANAL_URL
- { name: 'Academy', path:portal_url, icon: GraduationCap ,blank:true },
+//  { name: 'Academy', path:portal_url, icon: GraduationCap ,blank:true },
 
-    // { 
-    //   name: 'Students', 
-    //   icon: GraduationCap,
-    //   links: [
-    //     { name: "All Students", path: "/admin/student", icon: Users }
-    //   ] 
-    // },
+    { 
+      name: 'Academy', 
+      icon: GraduationCap,
+      links: [
+        
+        { name: "All Admin", path: "/admin/academy/admins", icon: Users },
+        { name: "Teacher", path: "/admin/academy/teachers", icon: FaChalkboardTeacher},
+        { name: "Active Students", path: "/admin/academy/students", icon: PiStudentBold  },
+        { name: "All Leads", path: "/admin/academy/leads", icon: SiGoogleadsense},
+        { name: "Create Leads", path: "/admin/academy/create", icon: IoCreate},
+        { name: "Subjects", path: "/admin/academy/subjects", icon: FaBarsStaggered},
+        { name: "Modules", path: "/admin/academy/modules", icon: MdGridOn },
+
+      ]
+    },
   //   { 
   //     name: 'Employees', 
   //     icon: Briefcase,
@@ -62,8 +79,10 @@ const {info,isLoading,isError}= useSelector(state=>state.user)
       icon: ChartNetwork,
       links: [
         { name: "All Agencies", path: "/admin/agency/", icon: Users },
+        { name: "Create Leads", path: "/admin/agency/createlead", icon: GiGraduateCap  },
         { name: "All Leads", path: "/admin/agency/all-leads", icon: ZodiacLeo },
-        { name: "Client site", path: "/admin/on-Board", icon: SquareDashedKanban }
+        { name: "Client site", path: "/admin/on-Board", icon: SquareDashedKanban },
+        { name: "Follow Up", path: "/admin/agency/follow-up", icon: FaUserPlus  }
       ]
     },
   { name: 'Message', path:'/admin/message', icon: MessagesSquare },
@@ -264,7 +283,7 @@ useEffect(()=>{
                 {hasLinks && (
                   <div 
                     className={`overflow-hidden transition-all duration-300 ease-in-out ${
-                      isOpen && isSidebarOpen ? 'max-h-40 opacity-100 mt-1' : 'max-h-0 opacity-0'
+                      isOpen && isSidebarOpen ? 'opacity-100 mt-1' : 'max-h-0 opacity-0'
                     }`}
                   >
                     <div className="pl-11 pr-3 py-1 space-y-1 border-l-2 border-slate-800 ml-6 my-1">

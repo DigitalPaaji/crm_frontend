@@ -15,7 +15,8 @@ const AdminLeadPage = () => {
   const navigate = useNavigate();
   const { token } = useSelector((state) => state.token);
   const {info} = useSelector((state)=>state.user)
-
+ const [followUpNote,setFollowUpNote]=useState("")
+const [followUpcommingDate,setFollowUpcommingDate]=useState("")
 
 
   const [loading, setLoading] = useState(true);
@@ -139,6 +140,38 @@ if(data.success){
   };
 
 
+  const handelFollowUp = async () => {
+    try {
+      const response = await fetch(`${base_url}/leads/admin/update-followup/${leadid}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({date:new Date(Date.now()),note:followUpNote,followUpcommingDate})
+      });
+     const data = await response.json();
+  
+if(data.success){
+  toast.success(data.message)
+  // navigate(-1)
+  setFormData(data.data)
+  setLeadMeta({
+          _id: data.data._id,
+          createdby: data.data.createdby,
+          createdAt: data.data.createdAt,
+          followup: data.data.followup || []
+        });
+        setFollowUpNote("")
+}else{
+  toast.error(data.message)
+  
+}
+    
+    } catch(err) { 
+    
+     }
+  };
 
   
   const handleConfirmDelete= async()=>{
@@ -165,7 +198,37 @@ navigate(-1)
       
     }
   }
+ const handelDeleteFollowUp= async(followUpId)=>{
+    try {
 
+            const response = await fetch(`${base_url}/leads/admin/delete-followup/${leadid}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({followUpId})
+      });
+     const data = await response.json();
+    
+if(data.success){
+  toast.success(data.message)
+  // navigate(-1)
+  setFormData(data.data)
+  setLeadMeta({
+          _id: data.data._id,
+          createdby: data.data.createdby,
+          createdAt: data.data.createdAt,
+          followup: data.data.followup || []
+        });
+}else{
+  toast.error(data.message)
+  
+}
+    } catch (error) {
+      
+    }
+  }
 
 
   if (loading) {
@@ -452,10 +515,11 @@ if(deleteID){
                   {leadMeta.followup.map((f, index) => (
                     <div key={index} className="flex justify-between items-center bg-white p-2 rounded border border-blue-100 text-sm">
                       <span className="text-gray-700">{new Date(f.date).toLocaleTimeString()} {new Date(f.date).toLocaleDateString()}</span>
+                    <div className='flex gap-1 items-center'>
                       <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">{ f?.by?.name}</span>
 
-
-
+                 <Delete onClick={()=>handelDeleteFollowUp(f._id)} size={30} className='cursor-pointer text-red-600 bg-gray-100 px-2 py-1 rounded' /> 
+</div>
 
 </div>
                   ))}
@@ -463,7 +527,26 @@ if(deleteID){
               ) : (
                 <p className="text-xs text-gray-500 mb-4 italic">No previous follow-ups recorded.</p>
               )}
-
+  <div className='flex  gap-3 items-end'>
+                <textarea name="" onChange={(e)=>setFollowUpNote(e.target.value)} value={followUpNote} id="" className='w-full border p-2 border-gray-600/40 ' rows={4}  placeholder='Note....'></textarea>
+                  
+                  <div className='text-center'  >
+                 <input
+       value={followUpcommingDate}
+       onChange={(e)=>setFollowUpcommingDate(e.target.value)}
+      placeholder="Search"
+       className="mb-10 pl-[0.8em] outline-none overflow-hidden bg-[#f3f3f3] border-2 border-transparent rounded-[10px]
+            transition-all duration-500 hover:border-[#4a9dec] hover:shadow-[0_0_0_7px_rgba(74,157,236,0.2)]
+            hover:bg-white focus:border-[#4a9dec] focus:shadow-[0_0_0_7px_rgba(74,157,236,0.2)] focus:bg-white"
+       type="date"/>
+            <button 
+              type="button" 
+              onClick={() =>handelFollowUp()}
+              className=" text-nowrap  px-4 py-2 bg-purple-600 cursor-pointer text-white rounded-lg text-sm font-medium hover:bg-purple-700 transition-colors shadow-sm h-fit">
+             Follow up
+            </button>
+            </div>
+              </div>
             
             </div>
           </div>

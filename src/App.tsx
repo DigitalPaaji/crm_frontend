@@ -70,6 +70,18 @@ import OnBoardFullPageAgency from "./pages/agency/OnBoardFullPageAgency"
 import AgencyHomePage from "./pages/agency/AgencyHomePage"
 import AcademyLeads from "./pages/academy/AcademyLeads"
 import AcademyLeadfullPage from "./pages/academy/AcademyLeadfullPage"
+import AdminGetPage from "./pages/academy/AdminGetPage"
+import CreateAdmin from "./pages/academy/CreateAdmin"
+import EditAdmin from "./pages/academy/EditAdmin"
+import CreateLeadCompo from "./pages/academy/CreateLeadCompo"
+import AdminTeacherPage from "./pages/academy/AdminTeacherPage"
+import SingleTeacherPage from "./pages/agency/SingleTeacherPage"
+import CreateTeacherPage from "./pages/academy/CreateTeacherPage"
+import SubjectsPage from "./pages/academy/SubjectsPage"
+import ChapterPages from "./pages/academy/ChapterPages"
+import StudentsPageadmin from "./pages/academy/StudentsPageadmin"
+import AdminCreateLeads from "./pages/admin/AdminCreateLeads"
+import AdminFollowUp from "./pages/admin/AdminFollowUp"
 function App(): React.JSX.Element {
 
   return (
@@ -105,9 +117,21 @@ transition={Slide}
 
 
 <Route path="academy" >
-<Route  path="leads" element={<AcademyLeads />} />
+  <Route path="admins"  element={<AdminGetPage />}/>
+  <Route path="admins/create"  element={<CreateAdmin />}/>
+<Route  path="admins/:id" element={<EditAdmin />} />
+ <Route  path="leads" element={<AcademyLeads />} />
+ <Route  path="create" element={<CreateLeadCompo />} />
 <Route  path="leads/:id" element={<AcademyLeadfullPage />} />
 
+  <Route path="teachers"  element={<AdminTeacherPage />}/>
+  <Route path="teachers/create"  element={<CreateTeacherPage />}/>
+  <Route path="teachers/:id"  element={<SingleTeacherPage />}/>
+
+
+  <Route path="subjects"  element={<SubjectsPage />}/>
+  <Route path="modules"  element={<ChapterPages />}/>
+  <Route path="students"  element={<StudentsPageadmin />}/>
 </Route>
 
 
@@ -132,12 +156,18 @@ transition={Slide}
 
 
         <Route path="employee" element={<EmployPage />} /> 
-        <Route path="agency"  >
+    
+     <Route path="agency"  >
      <Route index element={<AgencyPage />} />
      <Route path="all-leads" element={<AllLeadsPage />} />
+     <Route path="createlead" element={<AdminCreateLeads />} />
      <Route path="lead/:leadid" element={<AdminLeadPage />} />
-   
+     <Route path="follow-up" element={<AdminFollowUp />} />
         </Route> 
+
+
+
+        
       <Route path="clients" element={<CreaetClients />}  />                                                     
   
 

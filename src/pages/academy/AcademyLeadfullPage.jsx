@@ -30,7 +30,8 @@ import {
   FiShield,
 } from "react-icons/fi";
 
-import { portal_url } from "../../components/utlis";
+import { agency_url } from "../../components/utlis";
+import { useSelector } from "react-redux";
 
 const statusStyles = {
   NEW: "bg-blue-50 text-blue-700 ring-blue-200",
@@ -147,6 +148,7 @@ const SectionCard = ({ icon: Icon, title, subtitle, children }) => (
 
 const AcademyLeadfullPage = () => {
   const { id } = useParams();
+  const { token } = useSelector((state) => state.token);
   const navigate = useNavigate();
 
   const [originalData, setOriginalData] = useState(null);
@@ -163,7 +165,10 @@ const AcademyLeadfullPage = () => {
 
     try {
       const response = await axios.get(
-        `${portal_url}/panal/leads/get/${id}`
+        `${agency_url}/crm/leads/get/${id}`,{
+            headers: {
+      Authorization: `Bearer ${token}`,
+    }}
       );
 
       const data = response.data;
