@@ -1,6 +1,5 @@
-
 import React, { useCallback, useEffect, useState } from "react";
-import { Link, Route, useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { GrFormView } from "react-icons/gr";
@@ -8,8 +7,6 @@ import { GrFormView } from "react-icons/gr";
 import {
   FiFilter,
   FiRefreshCw,
-  FiEdit2,
-  FiTrash2,
   FiPhone,
   FiMail,
   FiMapPin,
@@ -87,9 +84,10 @@ const getErrorMessage = (error, fallback) =>
   error?.response?.data?.message || error?.message || fallback;
 
 const formatLabel = (value = "") =>
-  value.replace(/_/g, " ").toLowerCase().replace(/\b\w/g, (char) =>
-    char.toUpperCase()
-  );
+  value
+    .replace(/_/g, " ")
+    .toLowerCase()
+    .replace(/\b\w/g, (char) => char.toUpperCase());
 
 const formatDate = (dateStr) => {
   if (!dateStr) return "-";
@@ -108,16 +106,20 @@ const formatDate = (dateStr) => {
 const AcademyLeads = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
-     const { token } = useSelector((state) => state.token);
+  const { token } = useSelector((state) => state.token);
+
   // Read filters from the URL with safe defaults.
-  const page = parseInt(searchParams.get("page")) 
-  const limit = parseInt(searchParams.get("limit")) 
+  const page = parseInt(searchParams.get("page")) || 1;
+  const limit = parseInt(searchParams.get("limit")) || 20;
 
   const status = searchParams.get("status") || "";
   const source = searchParams.get("source") || "";
+  const date = searchParams.get("date") || "";
+  const isToday = date === "today";
 
   const [leads, setLeads] = useState([]);
   const [allStatus, setAllStatus] = useState([]);
+  const [todayStatus, setTodayStatus] = useState([]);
   const [allSource, setAllSource] = useState([]);
 
   const [pagination, setPagination] = useState({
@@ -133,16 +135,15 @@ const AcademyLeads = () => {
   const [statusLoading, setStatusLoading] = useState(false);
   const [deletingId, setDeletingId] = useState(null);
 
-  // Update URL filters and reset pagination.
-  const updateFilter = useCallback(
-    (key, value) => {
+  // Update several URL filters in ONE update and reset pagination.
+  const updateFilters = useCallback(
+    (updates) => {
       const params = new URLSearchParams(searchParams);
 
-      if (value) {
-        params.set(key, value);
-      } else {
-        params.delete(key);
-      }
+      Object.entries(updates).forEach(([key, value]) => {
+        if (value) params.set(key, value);
+        else params.delete(key);
+      });
 
       params.set("page", "1");
 
@@ -154,6 +155,9 @@ const AcademyLeads = () => {
     },
     [searchParams, setSearchParams]
   );
+
+  // Single-key helper kept for the dropdowns.
+  const updateFilter = (key, value) => updateFilters({ [key]: value });
 
   const changePage = (newPage) => {
     const totalPages = Math.max(1, pagination.totalPages || 1);
@@ -176,11 +180,8 @@ const AcademyLeads = () => {
     params.set("limit", String(newLimit));
     params.set("page", "1");
 
+    
     setSearchParams(params);
-  };
-
-  const clearFilters = () => {
-   
   };
 
   // Fetch status and source counts from the backend.
@@ -189,24 +190,35 @@ const AcademyLeads = () => {
 
     try {
       const response = await axios.get(
-        `${agency_url}/crm/leads/getleadstatus`,{
-            headers: {
-      Authorization: `Bearer ${token}`,
-    },
+        `${agency_url}/crm/leads/getleadstatus`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         }
       );
 
       const data = response.data;
 
       if (!data?.success) {
-        throw new Error(data?.error || data?.message || "Failed to fetch counts");
+        throw new Error(
+          data?.error || data?.message || "Failed to fetch counts"
+        );
       }
 
+      const todayCount = data.todayStatus || {};
       const statusCounts = data.leadStauts || {};
       const sourceCounts = data.leadsource || {};
 
       setAllStatus(
         Object.entries(statusCounts).map(([key, val]) => ({
+          key,
+          val: Number(val) || 0,
+        }))
+      );
+
+      setTodayStatus(
+        Object.entries(todayCount).map(([key, val]) => ({
           key,
           val: Number(val) || 0,
         }))
@@ -223,10 +235,10 @@ const AcademyLeads = () => {
     } finally {
       setStatusLoading(false);
     }
-  }, []);
+  }, [token]);
 
   // Fetch paginated and filtered leads.
-  const fetchLeads = async()=>{
+  const fetchLeads = useCallback(async () => {
     setLoading(true);
 
     try {
@@ -237,12 +249,14 @@ const AcademyLeads = () => {
 
       if (status) params.set("status", status);
       if (source) params.set("source", source);
+      if (date) params.set("date", date);
 
       const response = await axios.get(
-        `${agency_url}/crm/leads/get?${params.toString()}`,{
-            headers: {
-      Authorization: `Bearer ${token}`,
-    },
+        `${agency_url}/crm/leads/get?${params.toString()}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         }
       );
 
@@ -259,19 +273,12 @@ const AcademyLeads = () => {
       setPagination((previous) => ({
         ...previous,
         ...(result.pagination || {}),
-        currentPage: Number(
-          result.pagination?.currentPage ?? page
-        ),
+        currentPage: Number(result.pagination?.currentPage ?? page),
         limit: Number(result.pagination?.limit ?? limit),
         totalCount: Number(result.pagination?.totalCount ?? 0),
-        totalPages: Math.max(
-          1,
-          Number(result.pagination?.totalPages ?? 1)
-        ),
-        hasNextPage:
-          result.pagination?.hasNextPage ?? false,
-        hasPreviousPage:
-          result.pagination?.hasPreviousPage ?? false,
+        totalPages: Math.max(1, Number(result.pagination?.totalPages ?? 1)),
+        hasNextPage: result.pagination?.hasNextPage ?? false,
+        hasPreviousPage: result.pagination?.hasPreviousPage ?? false,
       }));
     } catch (error) {
       setLeads([]);
@@ -279,16 +286,15 @@ const AcademyLeads = () => {
     } finally {
       setLoading(false);
     }
-  }
+  }, [page, limit, status, source, date, token]);
 
   useEffect(() => {
     fetchStatus();
   }, [fetchStatus]);
 
   useEffect(() => {
-    if(!page &&  !limit && !status && !source) return
     fetchLeads();
-  }, [page, limit, status, source]);
+  }, [fetchLeads]);
 
   // Delete lead.
   const handleDelete = async (id) => {
@@ -305,32 +311,27 @@ const AcademyLeads = () => {
     try {
       // Change this URL if your backend uses a different delete route.
       const response = await axios.delete(
-        `${agency_url}/crm/leads/delete/${id}`,{
-            headers: {
-      Authorization: `Bearer ${token}`,
-    },
+        `${agency_url}/crm/leads/delete/${id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         }
       );
 
       if (response.data?.success === false) {
-        throw new Error(
-          response.data?.message || "Failed to delete lead"
-        );
+        throw new Error(response.data?.message || "Failed to delete lead");
       }
 
       toast.success("Lead deleted successfully");
 
-      // Update the list immediately.
-      setLeads((previous) =>
-        previous.filter((lead) => lead._id !== id)
-      );
+      setLeads((previous) => previous.filter((lead) => lead._id !== id));
 
       setPagination((previous) => ({
         ...previous,
         totalCount: Math.max(0, previous.totalCount - 1),
       }));
 
-      // Refresh counts and reload the previous page if necessary.
       await fetchStatus();
 
       if (leads.length === 1 && page > 1) {
@@ -345,11 +346,10 @@ const AcademyLeads = () => {
     }
   };
 
-  const hasFilters = Boolean(status || source);
+  const hasFilters = Boolean(status || source || date);
 
   const totalPages = Math.max(1, pagination.totalPages || 1);
-  const startItem =
-    pagination.totalCount === 0 ? 0 : (page - 1) * limit + 1;
+  const startItem = pagination.totalCount === 0 ? 0 : (page - 1) * limit + 1;
   const endItem = Math.min(page * limit, pagination.totalCount);
 
   const pageNumbers = Array.from(
@@ -363,7 +363,7 @@ const AcademyLeads = () => {
   );
 
   return (
-    <div className=" bg-gradient-to-br from-slate-50 to-blue-50 p-4 md:p-6">
+    <div className="bg-gradient-to-br from-slate-50 to-blue-50 p-4 md:p-6">
       <div className="mx-auto max-w-[1400px]">
         {/* Header */}
         <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
@@ -379,26 +379,57 @@ const AcademyLeads = () => {
               Manage and track all student leads.
             </p>
           </div>
-
-          <button
-            type="button"
-            onClick={() => {
-              fetchLeads();
-              fetchStatus();
-            }}
-            disabled={loading || statusLoading}
-            className="flex items-center justify-center gap-2 rounded-lg border border-indigo-200 bg-white px-4 py-2.5 text-sm font-semibold text-indigo-600 shadow-sm transition hover:bg-indigo-50 disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            <FiRefreshCw
-              size={16}
-              className={loading || statusLoading ? "animate-spin" : ""}
-            />
-            Refresh
-          </button>
         </div>
 
         {/* Status statistics */}
         <div className="mb-6 space-y-5">
+          {/* Today's leads by status */}
+          <section>
+            <h2 className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500">
+              Leads by Today
+            </h2>
+
+            {statusLoading && todayStatus.length === 0 ? (
+              <div className="rounded-xl border border-gray-100 bg-white p-4 text-sm text-gray-500">
+                Loading status counts...
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 gap-3 md:grid-cols-4 lg:grid-cols-8">
+                {(todayStatus.length
+                  ? todayStatus
+                  : ALL_STATUSES.map((key) => ({ key, val: 0 }))
+                ).map((item) => {
+                  const active = isToday && status === item.key;
+
+                  return (
+                    <button
+                      key={item.key}
+                      type="button"
+                      onClick={() =>
+                        active
+                          ? updateFilters({ status: "", date: "" })
+                          : updateFilters({ status: item.key, date: "today" })
+                      }
+                      aria-pressed={active}
+                      className={`rounded-xl border p-3 text-left shadow-sm transition hover:-translate-y-0.5 hover:shadow-md ${
+                        active ? "ring-2 ring-indigo-400 ring-offset-1" : ""
+                      } ${
+                        statusColors[item.key] ||
+                        "border-gray-100 bg-white text-gray-700"
+                      }`}
+                    >
+                      <p className="text-[10px] font-semibold uppercase opacity-80">
+                        {formatLabel(item.key)}
+                      </p>
+                      <p className="mt-1 text-xl font-bold">{item.val}</p>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </section>
+
+          {/* All-time leads by status */}
           <section>
             <h2 className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500">
               Leads by Status
@@ -413,32 +444,34 @@ const AcademyLeads = () => {
                 {(allStatus.length
                   ? allStatus
                   : ALL_STATUSES.map((key) => ({ key, val: 0 }))
-                ).map((item) => (
-                  <button
-                    key={item.key}
-                    type="button"
-                    onClick={() =>
-                      updateFilter(
-                        "status",
-                        status === item.key ? "" : item.key
-                      )
-                    }
-                    aria-pressed={status === item.key}
-                    className={`rounded-xl border p-3 text-left shadow-sm transition hover:-translate-y-0.5 hover:shadow-md ${
-                      status === item.key
-                        ? "ring-2 ring-indigo-400 ring-offset-1"
-                        : ""
-                    } ${
-                      statusColors[item.key] ||
-                      "border-gray-100 bg-white text-gray-700"
-                    }`}
-                  >
-                    <p className="text-[10px] font-semibold uppercase opacity-80">
-                      {formatLabel(item.key)}
-                    </p>
-                    <p className="mt-1 text-xl font-bold">{item.val}</p>
-                  </button>
-                ))}
+                ).map((item) => {
+                  const active = !isToday && status === item.key;
+
+                  return (
+                    <button
+                      key={item.key}
+                      type="button"
+                      onClick={() =>
+                        updateFilters({
+                          status: active ? "" : item.key,
+                          date: "",
+                        })
+                      }
+                      aria-pressed={active}
+                      className={`rounded-xl border p-3 text-left shadow-sm transition hover:-translate-y-0.5 hover:shadow-md ${
+                        active ? "ring-2 ring-indigo-400 ring-offset-1" : ""
+                      } ${
+                        statusColors[item.key] ||
+                        "border-gray-100 bg-white text-gray-700"
+                      }`}
+                    >
+                      <p className="text-[10px] font-semibold uppercase opacity-80">
+                        {formatLabel(item.key)}
+                      </p>
+                      <p className="mt-1 text-xl font-bold">{item.val}</p>
+                    </button>
+                  );
+                })}
               </div>
             )}
           </section>
@@ -458,10 +491,7 @@ const AcademyLeads = () => {
                   key={item.key}
                   type="button"
                   onClick={() =>
-                    updateFilter(
-                      "source",
-                      source === item.key ? "" : item.key
-                    )
+                    updateFilter("source", source === item.key ? "" : item.key)
                   }
                   aria-pressed={source === item.key}
                   className={`rounded-xl border p-3 text-left shadow-sm transition hover:-translate-y-0.5 hover:shadow-md ${
@@ -487,24 +517,21 @@ const AcademyLeads = () => {
 
             <h2 className="font-semibold text-gray-700">Filters</h2>
 
-            {hasFilters && (
-              <Link
-                to="/admin/academy/leads"
-                  onClick={()=>setLeads([ ])}
+            {/* {hasFilters && (
+
+               <Link
+                to="/admin/academy/leads?page=1&limit=20"
+                onClick={() => setLeads([])}
                 className="ml-auto flex items-center gap-1 text-xs font-medium text-red-500 hover:text-red-700"
-              >
-                <FiX size={14} />
-                Clear filters
-              </Link>
-            )}
+              ><FiX size={14} />  Clear filters </Link>
+            
+            )} */}
           </div>
 
-          <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-4">
             <select
               value={status}
-              onChange={(event) =>
-                updateFilter("status", event.target.value)
-              }
+              onChange={(event) => updateFilter("status", event.target.value)}
               className="rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-200"
               aria-label="Filter by status"
             >
@@ -521,9 +548,7 @@ const AcademyLeads = () => {
 
             <select
               value={source}
-              onChange={(event) =>
-                updateFilter("source", event.target.value)
-              }
+              onChange={(event) => updateFilter("source", event.target.value)}
               className="rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-200"
               aria-label="Filter by source"
             >
@@ -538,36 +563,33 @@ const AcademyLeads = () => {
               ))}
             </select>
 
-            <div className="flex items-center gap-2">
-              <select
-                value={limit}
-                onChange={(event) =>
-                  changeLimit(Number(event.target.value))
-                }
-                className="min-w-0 flex-1 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-200"
-                aria-label="Results per page"
-              >
-                {[10, 20, 50, 100].map((number) => (
-                  <option key={number} value={number}>
-                    {number} / page
-                  </option>
-                ))}
-              </select>
+            {/* Today toggle */}
+            <button
+              type="button"
+              onClick={() => updateFilters({ date: isToday ? "" : "today" })}
+              aria-pressed={isToday}
+              className={`flex items-center justify-center gap-2 rounded-lg border px-4 py-2.5 text-sm font-semibold transition ${
+                isToday
+                  ? "border-indigo-300 bg-indigo-600 text-white shadow-sm"
+                  : "border-gray-300 bg-white text-gray-600 hover:bg-indigo-50 hover:text-indigo-600"
+              }`}
+            >
+              {isToday ? "Today only" : "Show today's leads"}
+              {isToday && <FiX size={14} />}
+            </button>
 
-              <button
-                type="button"
-                onClick={fetchLeads}
-                disabled={loading}
-                className="rounded-lg bg-indigo-50 p-2.5 text-indigo-600 transition hover:bg-indigo-100 disabled:opacity-50"
-                title="Refresh leads"
-                aria-label="Refresh leads"
-              >
-                <FiRefreshCw
-                  size={16}
-                  className={loading ? "animate-spin" : ""}
-                />
-              </button>
-            </div>
+            <select
+              value={limit}
+              onChange={(event) => changeLimit(Number(event.target.value))}
+              className="min-w-0 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-200"
+              aria-label="Results per page"
+            >
+              {[10, 20, 50, 100].map((number) => (
+                <option key={number} value={number}>
+                  {number} / page
+                </option>
+              ))}
+            </select>
           </div>
         </section>
 
@@ -609,9 +631,7 @@ const AcademyLeads = () => {
                           className="animate-spin text-indigo-600"
                           size={28}
                         />
-                        <p className="text-sm text-gray-500">
-                          Loading leads...
-                        </p>
+                        <p className="text-sm text-gray-500">Loading leads...</p>
                       </div>
                     </td>
                   </tr>
@@ -742,29 +762,11 @@ const AcademyLeads = () => {
                                 navigate(`/admin/academy/leads/${lead._id}`)
                               }
                               className="rounded-md p-1.5 text-indigo-600 transition hover:bg-indigo-50"
-                              title="View "
-                            //   aria-label={`Edit ${lead.name || "lead"}`}
+                              title="View"
+                              aria-label={`View ${lead.name || "lead"}`}
                             >
-                              <GrFormView  size={25} />
+                              <GrFormView size={25} />
                             </button>
-
-                            {/* <button
-                              type="button"
-                              onClick={() => handleDelete(lead._id)}
-                              disabled={deletingId === lead._id}
-                              className="rounded-md p-1.5 text-red-600 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-40"
-                              title="Delete lead"
-                              aria-label={`Delete ${lead.name || "lead"}`}
-                            >
-                              {deletingId === lead._id ? (
-                                <FiRefreshCw
-                                  size={15}
-                                  className="animate-spin"
-                                />
-                              ) : (
-                                <FiTrash2 size={15} />
-                              )}
-                            </button> */}
                           </div>
                         </td>
                       </tr>
@@ -779,14 +781,9 @@ const AcademyLeads = () => {
           <div className="flex flex-col items-center justify-between gap-3 border-t border-gray-100 bg-gray-50 p-4 sm:flex-row">
             <p className="text-center text-sm text-gray-600 sm:text-left">
               Showing{" "}
-              <span className="font-semibold text-gray-800">
-                {startItem}
-              </span>{" "}
+              <span className="font-semibold text-gray-800">{startItem}</span>{" "}
               to{" "}
-              <span className="font-semibold text-gray-800">
-                {endItem}
-              </span>{" "}
-              of{" "}
+              <span className="font-semibold text-gray-800">{endItem}</span> of{" "}
               <span className="font-semibold text-gray-800">
                 {pagination.totalCount}
               </span>{" "}
@@ -818,10 +815,9 @@ const AcademyLeads = () => {
 
               {pageNumbers.map((number, index) => (
                 <React.Fragment key={number}>
-                  {index > 0 &&
-                    pageNumbers[index - 1] !== number - 1 && (
-                      <span className="px-1 text-gray-400">...</span>
-                    )}
+                  {index > 0 && pageNumbers[index - 1] !== number - 1 && (
+                    <span className="px-1 text-gray-400">...</span>
+                  )}
 
                   <button
                     type="button"

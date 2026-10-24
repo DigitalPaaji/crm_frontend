@@ -21,7 +21,7 @@ import {
 import Loader from '../../components/Loader';
 import { Link } from 'react-router-dom';
 
-const MyLeads = () => {
+const MyLeads = () => { 
   const { token } = useSelector((state) => state.token);
   const [showPhone,setShowPhone]=useState(false)
   const [leads, setLeads] = useState([]);

@@ -17,7 +17,34 @@ import {
 import { Link, useSearchParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 
-import { FaCashRegister, FaIndianRupeeSign, FaRegEyeSlash, FaRupeeSign } from "react-icons/fa6";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  ArcElement,
+  PointElement,
+  LineElement,
+  Tooltip,
+  Legend,
+  Filler,
+} from "chart.js";
+import { Bar, Doughnut, Line } from "react-chartjs-2";
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  ArcElement,
+  PointElement,
+  LineElement,
+  Tooltip,
+  Legend,
+  Filler
+);
+
+
+import { FaCashRegister, FaChartLine, FaIndianRupeeSign, FaRegEyeSlash, FaRupeeSign, FaTable } from "react-icons/fa6";
 import { MdBookOnline } from "react-icons/md";
 import { IoIosCash } from "react-icons/io";
 import { agency_url } from "../../components/utlis";
@@ -41,16 +68,24 @@ const initialForm = {
   studentId: "",
   subjects: [],
 };
+const formatINR = (value) =>
+  new Intl.NumberFormat("en-IN", {
+    style: "currency",
+    currency: "INR",
+    maximumFractionDigits: 0,
+  }).format(value);
 
 const StudentsPageadmin = () => {
   const { token } = useSelector((state) => state.token);
-
+ 
 
   const [searchParams] = useSearchParams();
-const fullname = searchParams.get("fullname") ?? "";
+  const fullname = searchParams.get("fullname") ?? "";
   const email = searchParams.get("email") ?? "";
   const phone = searchParams.get("phone") ?? "";
   const creatingquery = searchParams.get("creating")=="true";
+  const [dashboadData,setDashBoardData]=useState()
+
 
 
 
@@ -59,7 +94,7 @@ const fullname = searchParams.get("fullname") ?? "";
 
   const [loading, setLoading] = useState(true);
   const [subjectsLoading, setSubjectsLoading] = useState(true);
-
+const [showStudents, setShowStudents] = useState(false);
   const [search, setSearch] = useState("");
 
   const [showCreateModal, setShowCreateModal] = useState(creatingquery);
@@ -98,7 +133,8 @@ installments :{}
       const data = response.data;
 
       if (data?.success) {
-        setStudents(data.students || []);
+        setStudents(data.data.students || []);
+         setDashBoardData(data.data.dashboard || { })
       } else {
         setStudents([]);
       }
@@ -169,27 +205,7 @@ installments :{}
 
 
 
-  const handleSubjectChange = (e) => {
-    const selectedIds = Array.from(e.target.selectedOptions).map(
-      (option) => option.value
-    );
 
-    setForm((prev) => ({
-      ...prev,
-      subjects: selectedIds,
-    }));
-  };
-
-
-
-  const removeSubject = (subjectId) => {
-    setForm((prev) => ({
-      ...prev,
-      subjects: prev.subjects.filter(
-        (id) => id !== subjectId
-      ),
-    }));
-  };
 
   
   const handleCreateStudent = async (e) => {
@@ -399,7 +415,7 @@ installments :{}
       );
     });
   }, [students, search]);
-
+  
 
   const initials = (name = "") =>
     name
@@ -433,8 +449,331 @@ setForm(prev=>({...prev,subjects}))
   }
 
   return (
-    <section className="relative min-h-screen w-full overflow-hidden bg-slate-50 px-4 py-8 sm:px-6 lg:px-8">
-      {/*   */}
+  <div className="relative w-full overflow-hidden">
+    {/* Toggle Button */}
+    <button
+      onClick={() => setShowStudents((prev) => !prev)}
+      className={`absolute  duration-300 top-10 z-50   px-3 py-2 text-3xl  transition 
+        ${showStudents? "left-0 rounded-e-2xl bg-red-400/60 text-red-900 hover:bg-red-500/70":"right-0 rounded-s-2xl bg-green-400/60 text-green-900 hover:bg-green-500/70"}
+        `}
+    >
+      {showStudents? <FaChartLine />:<FaTable />}
+      
+      
+    </button>
+
+    {/* Sliding Container */}
+    <div
+      className={`flex w-[200%] transition-transform duration-500 ease-in-out ${
+        showStudents ? "-translate-x-1/2" : "translate-x-0"
+      }`}
+    >
+      {/* First Screen: Dashboard */}
+      <div className="w-1/2 min-w-0 shrink-0">
+        <DashboardData data={dashboadData} />
+      </div>
+
+      {/* Second Screen: Students */}
+      <div className="w-1/2 min-w-0 shrink-0">
+        <StudentSection
+          search={search}
+          openCreateModal={openCreateModal}
+          students={students}
+          loading={loading}
+          showCreateModal={showCreateModal}
+          filteredStudents={filteredStudents}
+          initials={initials}
+          togglingId={togglingId}
+        />
+      </div>
+    </div>
+  </div>
+  );
+};
+
+export default StudentsPageadmin;
+
+
+const DashboardData=({data})=>{
+   const monthlyCollections = data?.monthlyCollections || [];
+   const monthlyLabels = monthlyCollections.map(({ month }) => {
+    const [year, monthNumber] = month.split("-");
+    return new Date(
+      Number(year),
+      Number(monthNumber) - 1
+    ).toLocaleDateString("en-IN", {
+      month: "short",
+      year: "numeric",
+    });
+  });
+
+  const monthlyValues = monthlyCollections.map(
+    (item) => item.totalCollected
+  );
+
+  const monthlyChartData = {
+    labels: monthlyLabels,
+    datasets: [
+      {
+        label: "Fees Collected",
+        data: monthlyValues,
+        backgroundColor: "#153497",
+        borderRadius: 6,
+        maxBarThickness: 45,
+      },
+    ],
+  };
+
+  const installmentChartData = {
+    labels: [
+      "Registration",
+      "First Installment",
+      "Second Installment",
+      "Third Installment",
+    ],
+    datasets: [
+      {
+        data: [
+          data?.installments?.registration || 0,
+          data?.installments?.first_installment || 0,
+          data?.installments?.second_installment || 0,
+          data?.installments?.third_installment || 0,
+        ],
+        backgroundColor: [
+          "#153497",
+          "#7C3AED",
+          "#0D9488",
+          "#F59E0B",
+        ],
+        borderWidth: 0,
+        hoverOffset: 8,
+      },
+    ],
+  };
+
+  const studentChartData = {
+    labels: ["Active Students", "Inactive Students"],
+    datasets: [
+      {
+        data: [
+          data?.activeStudents || 0,
+          data?.inactiveStudents || 0,
+        ],
+        backgroundColor: ["#16A34A", "#DC2626"],
+        borderWidth: 0,
+        hoverOffset: 8,
+      },
+    ],
+  };
+
+  const lineChartData = {
+    labels: monthlyLabels,
+    datasets: [
+      {
+        label: "Monthly Collection",
+        data: monthlyValues,
+        borderColor: "#7C3AED",
+        backgroundColor: "rgba(124, 58, 237, 0.12)",
+        fill: true,
+        tension: 0.35,
+        pointRadius: 4,
+        pointHoverRadius: 6,
+      },
+    ],
+  };
+
+  const barOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        callbacks: {
+          label: (context) =>
+            `Collected: ${formatINR(Number(context.raw))}`,
+        },
+      },
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+        ticks: {
+          callback: (value) => `₹${Number(value).toLocaleString("en-IN")}`,
+        },
+      },
+    },
+  };
+
+  const commonDoughnutOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    cutout: "65%",
+    plugins: {
+      legend: {
+        position: "bottom",
+        labels: {
+          usePointStyle: true,
+          padding: 20,
+        },
+      },
+      tooltip: {
+        callbacks: {
+          label: (context) =>
+            `${context.label}: ${formatINR(Number(context.raw))}`,
+        },
+      },
+    },
+  };
+
+  const cards = [
+    {
+      title: "Total Students",
+      value: data?.totalStudents || 0,
+      color: "text-blue-700",
+    },
+    {
+      title: "Active Students",
+      value: data?.activeStudents || 0,
+      color: "text-green-600",
+    },
+    {
+      title: "Total Course Fees",
+      value: formatINR(data?.totalCourseFees || 0),
+      color: "text-gray-900",
+    },
+    {
+      title: "Fees Collected",
+      value: formatINR(data?.totalCollectedFees || 0),
+      color: "text-green-600",
+    },
+    {
+      title: "Pending Fees",
+      value: formatINR(data?.totalPendingFees || 0),
+      color: "text-red-600",
+    },
+    {
+      title: "Collection Rate",
+      value: `${Number(data?.collectionRate || 0).toFixed(2)}%`,
+      color: "text-purple-700",
+    },
+    {
+      title: "Current Month Collection",
+      value: formatINR(data?.currentMonthCollected || 0),
+      color: "text-indigo-700",
+    },
+    {
+      title: "Inactive Students",
+      value: data?.inactiveStudents || 0,
+      color: "text-orange-600",
+    },
+  ];
+
+  return (
+    <div className="w-full space-y-6 p-3">
+      {/* Dashboard Summary Cards */}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        {cards.map((card) => (
+          <div
+            key={card.title}
+            className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition hover:shadow-md"
+          >
+            <p className="text-sm font-medium text-gray-500">
+              {card.title}
+            </p>
+            <h3 className={`mt-3 text-2xl font-bold ${card.color}`}>
+              {card.value}
+            </h3>
+          </div>
+        ))}
+      </div>
+
+      {/* Monthly Collection Bar Chart */}
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
+        <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+          <h2 className="mb-5 text-lg font-semibold text-gray-800">
+            Monthly Fee Collection
+          </h2>
+          <div className="h-72">
+            <Bar data={monthlyChartData} options={barOptions} />
+          </div>
+        </div>
+
+        {/* Installment Doughnut Chart */}
+        <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+          <h2 className="mb-5 text-lg font-semibold text-gray-800">
+            Installment Breakdown
+          </h2>
+          <div className="h-72">
+            <Doughnut
+              data={installmentChartData}
+              options={commonDoughnutOptions}
+            />
+          </div>
+        </div>
+
+        {/* Student Status Doughnut Chart */}
+        <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+          <h2 className="mb-5 text-lg font-semibold text-gray-800">
+            Student Status
+          </h2>
+          <div className="h-72">
+            <Doughnut
+              data={studentChartData}
+              options={commonDoughnutOptions}
+            />
+          </div>
+        </div>
+
+        {/* Monthly Collection Line Chart */}
+        <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+          <h2 className="mb-5 text-lg font-semibold text-gray-800">
+            Collection Trend
+          </h2>
+          <div className="h-72">
+            <Line data={lineChartData} options={barOptions} />
+          </div>
+        </div>
+      </div>
+
+      {/* Fee Collection Progress */}
+      <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+        <div className="mb-3 flex items-center justify-between gap-3">
+          <h2 className="text-lg font-semibold text-gray-800">
+            Overall Fee Collection Progress
+          </h2>
+          <span className="font-bold text-blue-700">
+            {Number(data?.collectionRate || 0).toFixed(2)}%
+          </span>
+        </div>
+
+        <div className="h-3 overflow-hidden rounded-full bg-gray-100">
+          <div
+            className="h-full rounded-full bg-blue-700 transition-all duration-500"
+            style={{
+              width: `${Math.min(
+                100,
+                Math.max(0, Number(data?.collectionRate || 0))
+              )}%`,
+            }}
+          />
+        </div>
+
+        <div className="mt-3 flex justify-between gap-3 text-sm text-gray-500">
+          <span>Collected: {formatINR(data?.totalCollectedFees || 0)}</span>
+          <span>Pending: {formatINR(data?.totalPendingFees || 0)}</span>
+        </div>
+      </div>
+    </div>
+  );
+
+}
+
+const StudentSection= ({search,openCreateModal,students,loading,showCreateModal,filteredStudents,
+  initials,togglingId })=>{
+
+  return(
+<section className="relative min-h-screen w-full overflow-hidden bg-slate-50 px-4 py-8 sm:px-6 lg:px-8">
+  
 
       <style>{`
         .glass-swal-popup {
@@ -515,9 +854,7 @@ setForm(prev=>({...prev,subjects}))
         }
       `}</style>
 
-      {/* =====================================================
-          BACKGROUND
-      ===================================================== */}
+     
 
       <div
         className="pointer-events-none absolute -left-24 -top-24 h-72 w-72 rounded-full opacity-[0.08] blur-3xl"
@@ -531,10 +868,7 @@ setForm(prev=>({...prev,subjects}))
 
       <div className="relative mx-auto max-w-6xl">
 
-        {/* =====================================================
-            HEADER
-        ===================================================== */}
-
+       
         <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
 
           <div>
@@ -567,7 +901,7 @@ setForm(prev=>({...prev,subjects}))
 
           <div className="flex flex-col gap-3 sm:flex-row">
 
-            {/* Search */}
+ 
             <div className="relative w-full sm:w-72">
 
               <FiSearch
@@ -605,13 +939,9 @@ setForm(prev=>({...prev,subjects}))
           </div>
         </div>
 
-        {/* =====================================================
-            STATS
-        ===================================================== */}
 
         <div className="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
 
-          {/* Total */}
           <div className="rounded-2xl border border-white/60 bg-white/50 p-4 shadow-sm backdrop-blur-xl">
 
             <div className="flex items-center justify-between">
@@ -637,7 +967,6 @@ setForm(prev=>({...prev,subjects}))
 
           </div>
 
-          {/* Active */}
           <div className="rounded-2xl border border-white/60 bg-white/50 p-4 shadow-sm backdrop-blur-xl">
 
             <div className="flex items-center justify-between">
@@ -664,7 +993,6 @@ setForm(prev=>({...prev,subjects}))
 
           </div>
 
-          {/* Inactive */}
           <div className="rounded-2xl border border-white/60 bg-white/50 p-4 shadow-sm backdrop-blur-xl">
 
             <div className="flex items-center justify-between">
@@ -693,9 +1021,7 @@ setForm(prev=>({...prev,subjects}))
 
         </div>
 
-        {/* =====================================================
-            TABLE
-        ===================================================== */}
+
 
         <div className="overflow-hidden rounded-3xl border border-white/50 bg-white/50 shadow-[0_8px_32px_rgba(13,43,69,0.12)] backdrop-blur-2xl">
 
@@ -745,7 +1071,6 @@ setForm(prev=>({...prev,subjects}))
 
               <tbody className="divide-y divide-white/50">
 
-                {/* Loading */}
                 {loading ? (
 
                   Array.from({ length: 5 }).map(
@@ -805,7 +1130,7 @@ setForm(prev=>({...prev,subjects}))
 
                 ) : filteredStudents.length === 0 ? (
 
-                  /* Empty */
+            
                   <tr>
 
                     <td
@@ -840,7 +1165,7 @@ setForm(prev=>({...prev,subjects}))
 
                 ) : (
 
-                  /* Students */
+           
                   filteredStudents.map(
                     (student, index) => (
 
@@ -849,12 +1174,12 @@ setForm(prev=>({...prev,subjects}))
                         className="transition-colors hover:bg-white/50"
                       >
 
-                        {/* Number */}
+                    
                         <td className="px-5 py-4 text-slate-400">
                           {index + 1}
                         </td>
 
-                        {/* Student */}
+          
                         <td className="px-5 py-4">
 
                           <div className="flex items-center gap-3">
@@ -890,7 +1215,7 @@ setForm(prev=>({...prev,subjects}))
 
                         </td>
 
-                        {/* Student ID */}
+           
                         <td className="px-5 py-4">
 
                           <span className="inline-flex items-center gap-1.5 rounded-lg bg-slate-100 px-2.5 py-1.5 text-xs font-semibold text-slate-600">
@@ -903,7 +1228,7 @@ setForm(prev=>({...prev,subjects}))
 
                         </td>
 
-                        {/* Phone */}
+                    
                         <td className="px-5 py-4 text-slate-600">
 
                           {student.phone ? (
@@ -960,9 +1285,6 @@ setForm(prev=>({...prev,subjects}))
 
                         </td>
 
-
-
-                        {/* Status */}
                         <td className="px-5 py-4">
 
                           <button
@@ -1006,7 +1328,6 @@ setForm(prev=>({...prev,subjects}))
 
                         </td>
 
-                        {/* Action */}
                         <td className="px-5 py-4 text-right">
 
                           <Link
@@ -1036,9 +1357,7 @@ setForm(prev=>({...prev,subjects}))
 
       </div>
 
-      {/* =====================================================
-          CREATE STUDENT MODAL
-      ===================================================== */}
+
 
       {showCreateModal && (
 
@@ -1046,7 +1365,7 @@ setForm(prev=>({...prev,subjects}))
 
           <div className="relative max-h-[92vh] w-full max-w-2xl overflow-y-auto rounded-3xl border border-white/60 bg-white/95 p-6 shadow-2xl backdrop-blur-2xl sm:p-7">
 
-            {/* Close */}
+     
             <button
               type="button"
               onClick={closeCreateModal}
@@ -1056,7 +1375,7 @@ setForm(prev=>({...prev,subjects}))
               <FiX />
             </button>
 
-            {/* Modal Header */}
+  
             <div className="mb-6 pr-10">
 
               <div
@@ -1078,12 +1397,11 @@ setForm(prev=>({...prev,subjects}))
 
             </div>
 
-            {/* FORM */}
+  
             <form onSubmit={handleCreateStudent}>
 
               <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
 
-                {/* Fullname */}
                 <div>
 
                   <label className="mb-1.5 block text-xs font-semibold text-slate-600">
@@ -1108,7 +1426,7 @@ setForm(prev=>({...prev,subjects}))
 
                 </div>
 
-                {/* Student ID */}
+  
                 <div>
 
                   <label className="mb-1.5 block text-xs font-semibold text-slate-600">
@@ -1133,7 +1451,7 @@ setForm(prev=>({...prev,subjects}))
 
                 </div>
 
-                {/* Email */}
+          
                 <div>
 
                   <label className="mb-1.5 block text-xs font-semibold text-slate-600">
@@ -1159,7 +1477,7 @@ setForm(prev=>({...prev,subjects}))
 
                 </div>
 
-                {/* Phone */}
+   
                 <div>
 
                   <label className="mb-1.5 block text-xs font-semibold text-slate-600">
@@ -1185,7 +1503,7 @@ setForm(prev=>({...prev,subjects}))
 
                 </div>
 
-                {/* Password */}
+
                 <div className="sm:col-span-2">
 
                   <label className="mb-1.5 block text-xs font-semibold text-slate-600">
@@ -1211,9 +1529,7 @@ setForm(prev=>({...prev,subjects}))
 
                 </div>
 
-                {/* =================================================
-                    SUBJECTS
-                ================================================= */}
+             
 
                 <div className="sm:col-span-2">
 
@@ -1266,7 +1582,7 @@ setForm(prev=>({...prev,subjects}))
           }
         `}
       >
-        {/* Check / Plus */}
+ 
         <span
           className={`
             flex h-4 w-4 items-center justify-center
@@ -1334,7 +1650,7 @@ setForm(prev=>({...prev,subjects}))
 
   <div className="rounded-xl border border-slate-200 bg-white p-4">
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-      {/* Amount */}
+   
       <div>
         <label className="mb-1.5 block text-xs font-medium text-slate-500">
           Amount (₹)
@@ -1361,7 +1677,7 @@ setForm(prev=>({...prev,subjects}))
         />
       </div>
 
-      {/* Date */}
+
       <div>
         <label className="mb-1.5 block text-xs font-medium text-slate-500">
           Payment Date
@@ -1387,14 +1703,14 @@ setForm(prev=>({...prev,subjects}))
       </div>
     </div>
 
-    {/* Payment Mode */}
+
     <div className="mt-4">
       <label className="mb-2 block text-xs font-medium text-slate-500">
         Payment Mode
       </label>
 
       <div className="grid grid-cols-2 gap-3">
-        {/* Online */}
+
         <button
           type="button"
           onClick={() =>
@@ -1419,7 +1735,7 @@ setForm(prev=>({...prev,subjects}))
           Online
         </button>
 
-        {/* Offline */}
+
         <button
           type="button"
           onClick={() =>
@@ -1461,7 +1777,7 @@ setForm(prev=>({...prev,subjects}))
 
   <div className="rounded-xl border border-slate-200 bg-white p-4">
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-      {/* Amount */}
+  
       <div>
         <label className="mb-1.5 block text-xs font-medium text-slate-500">
           Amount (₹)
@@ -1488,7 +1804,7 @@ setForm(prev=>({...prev,subjects}))
         />
       </div>
 
-      {/* Date */}
+
       <div>
         <label className="mb-1.5 block text-xs font-medium text-slate-500">
           Payment Date
@@ -1514,14 +1830,14 @@ setForm(prev=>({...prev,subjects}))
       </div>
     </div>
 
-    {/* Payment Mode */}
+
     <div className="mt-4">
       <label className="mb-2 block text-xs font-medium text-slate-500">
         Payment Mode
       </label>
 
       <div className="grid grid-cols-2 gap-3">
-        {/* Online */}
+
         <button
           type="button"
           onClick={() =>
@@ -1546,7 +1862,7 @@ setForm(prev=>({...prev,subjects}))
           Online
         </button>
 
-        {/* Offline */}
+  
         <button
           type="button"
           onClick={() =>
@@ -1595,7 +1911,7 @@ setForm(prev=>({...prev,subjects}))
 
   <div className="rounded-xl border border-slate-200 bg-white p-4">
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-      {/* Amount */}
+   
       <div>
         <label className="mb-1.5 block text-xs font-medium text-slate-500">
           Amount (₹)
@@ -1622,7 +1938,7 @@ setForm(prev=>({...prev,subjects}))
         />
       </div>
 
-      {/* Date */}
+
       <div>
         <label className="mb-1.5 block text-xs font-medium text-slate-500">
           Payment Date
@@ -1648,14 +1964,14 @@ setForm(prev=>({...prev,subjects}))
       </div>
     </div>
 
-    {/* Payment Mode */}
+
     <div className="mt-4">
       <label className="mb-2 block text-xs font-medium text-slate-500">
         Payment Mode
       </label>
 
       <div className="grid grid-cols-2 gap-3">
-        {/* Online */}
+
         <button
           type="button"
           onClick={() =>
@@ -1680,7 +1996,6 @@ setForm(prev=>({...prev,subjects}))
           Online
         </button>
 
-        {/* Offline */}
         <button
           type="button"
           onClick={() =>
@@ -1727,7 +2042,7 @@ setForm(prev=>({...prev,subjects}))
 
   <div className="rounded-xl border border-slate-200 bg-white p-4">
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-      {/* Amount */}
+
       <div>
         <label className="mb-1.5 block text-xs font-medium text-slate-500">
           Amount (₹)
@@ -1754,7 +2069,7 @@ setForm(prev=>({...prev,subjects}))
         />
       </div>
 
-      {/* Date */}
+ 
       <div>
         <label className="mb-1.5 block text-xs font-medium text-slate-500">
           Payment Date
@@ -1780,14 +2095,14 @@ setForm(prev=>({...prev,subjects}))
       </div>
     </div>
 
-    {/* Payment Mode */}
+
     <div className="mt-4">
       <label className="mb-2 block text-xs font-medium text-slate-500">
         Payment Mode
       </label>
 
       <div className="grid grid-cols-2 gap-3">
-        {/* Online */}
+
         <button
           type="button"
           onClick={() =>
@@ -1812,7 +2127,7 @@ setForm(prev=>({...prev,subjects}))
           Online
         </button>
 
-        {/* Offline */}
+
         <button
           type="button"
           onClick={() =>
@@ -1850,9 +2165,7 @@ setForm(prev=>({...prev,subjects}))
 
               </div>
 
-              {/* =================================================
-                  BUTTONS
-              ================================================= */}
+           
 
               <div className="mt-7 flex justify-end gap-3 border-t border-slate-100 pt-5">
 
@@ -1908,9 +2221,6 @@ setForm(prev=>({...prev,subjects}))
 
       )}
 
-    </section>
-  );
-};
-
-export default StudentsPageadmin;
-
+    </section> 
+  )
+}
