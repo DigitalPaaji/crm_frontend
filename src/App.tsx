@@ -82,6 +82,7 @@ import ChapterPages from "./pages/academy/ChapterPages"
 import StudentsPageadmin from "./pages/academy/StudentsPageadmin"
 import AdminCreateLeads from "./pages/admin/AdminCreateLeads"
 import AdminFollowUp from "./pages/admin/AdminFollowUp"
+import GetAllStudents from "./pages/academy/GetAllStudents"
 function App(): React.JSX.Element {
 
   return (
@@ -132,6 +133,7 @@ transition={Slide}
   <Route path="subjects"  element={<SubjectsPage />}/>
   <Route path="modules"  element={<ChapterPages />}/>
   <Route path="students"  element={<StudentsPageadmin />}/>
+  <Route path="students/:id"  element={<GetAllStudents />}/>
 </Route>
 
 
