@@ -1097,7 +1097,7 @@ navigate("/admin/academy/students")
          <div className="mt-7 flex justify-end gap-3 border-t border-slate-100 pt-5">
  
                  <Link
-                  to={"/admin/academy/student"}
+                  to={"/admin/academy/students"}
                  type="button"
 
                   
