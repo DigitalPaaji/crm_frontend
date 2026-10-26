@@ -363,15 +363,19 @@ const AcademyPanel = ({ data, error }) => {
 
       {view && (
         <>
-          {/* Leads + students */}
+          {/*  */}
           <div className="ah-stats">
             <Stat title="Total leads" value={num(view.leads.total)} />
             <Stat title="New today" value={num(view.leads.createdToday)} />
             <Stat title="Updated today" value={num(view.leads.updatedToday)} />
             <Stat title="Total students" value={num(view.students.total)} />
-            {/* <Stat title="Active students" value={num(view.students.active)} tone="good" />
+            {/* 
+            
+            <Stat title="Active students" value={num(view.students.active)} tone="good" />
             <Stat title="Inactive students" value={num(view.students.inactive)} />
-            <Stat title="Blocked students" value={num(view.students.blocked)} tone={view.students.blocked > 0 ? 'danger' : ''} /> */}
+           <Stat title="Blocked students" value={num(view.students.blocked)} tone={view.students.blocked > 0 ? 'danger' : ''} />
+           
+          */}
           </div>
 
           {/* Money */}
@@ -382,11 +386,11 @@ const AcademyPanel = ({ data, error }) => {
             <Stat title="Collection rate" value={`${view.revenue.collectionRate ?? 0}%`} />
             <Stat title="Collected this month" value={money(view.revenue.currentMonthCollected)} />
             <Stat title="Collected today" value={money(view.revenue.todayCollected)} />
-            <Stat
+            {/* <Stat
               title="Profit"
               value={view.profit === null || view.profit === undefined ? 'Not available' : money(view.profit)}
               tone={view.profit > 0 ? 'good' : view.profit < 0 ? 'danger' : ''}
-            />
+            /> */}
           </div>
 
           <ChartCard title="Fees collected vs pending" hint={`Course fees ${money(view.revenue.totalCourseFees)}`} empty={!view.has.fees}>
