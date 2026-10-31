@@ -83,6 +83,7 @@ import StudentsPageadmin from "./pages/academy/StudentsPageadmin"
 import AdminCreateLeads from "./pages/admin/AdminCreateLeads"
 import AdminFollowUp from "./pages/admin/AdminFollowUp"
 import GetAllStudents from "./pages/academy/GetAllStudents"
+import ReviewPage from "./pages/admin/ReviewPage"
 function App(): React.JSX.Element {
 
   return (
@@ -167,7 +168,11 @@ transition={Slide}
      <Route path="follow-up" element={<AdminFollowUp />} />
         </Route> 
 
+    <Route path="review"  >
+    <Route  index  element={<ReviewPage />} />
 
+
+    </Route>
 
         
       <Route path="clients" element={<CreaetClients />}  />                                                     

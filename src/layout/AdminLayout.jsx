@@ -27,7 +27,7 @@ import { PiStudentBold } from "react-icons/pi";
 
 import GetImage from '../components/GetImage';
 import { FaChalkboardTeacher, FaUserPlus } from 'react-icons/fa';
-import { MdGridOn } from 'react-icons/md';
+import { MdGridOn, MdPreview } from 'react-icons/md';
 import { GiGraduateCap } from "react-icons/gi";
 
 
@@ -67,6 +67,7 @@ const {info,isLoading,isError}= useSelector(state=>state.user)
 
       ]
     },
+   
   //   { 
   //     name: 'Employees', 
   //     icon: Briefcase,
@@ -85,6 +86,25 @@ const {info,isLoading,isError}= useSelector(state=>state.user)
         { name: "Follow Up", path: "/admin/agency/follow-up", icon: FaUserPlus  }
       ]
     },
+
+     { 
+      name: 'Review', 
+      icon: MdPreview ,
+      links: [
+        
+        { name: "Review Clients", path: "/admin/review", icon: Users },
+        // { name: "Teacher", path: "/admin/academy/teachers", icon: FaChalkboardTeacher},
+        // { name: "Active Students", path: "/admin/academy/students", icon: PiStudentBold  },
+        // { name: "All Leads", path: "/admin/academy/leads", icon: SiGoogleadsense},
+        // { name: "Create Leads", path: "/admin/academy/create", icon: IoCreate},
+        // { name: "Subjects", path: "/admin/academy/subjects", icon: FaBarsStaggered},
+        // { name: "Modules", path: "/admin/academy/modules", icon: MdGridOn },
+
+      ]
+    },
+
+
+
   { name: 'Message', path:'/admin/message', icon: MessagesSquare },
 
 
