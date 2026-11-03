@@ -22,7 +22,7 @@ import { getUser } from '../store/userSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import { SiGoogleadsense } from "react-icons/si";
 import { IoCreate } from "react-icons/io5";
-import { FaBarsStaggered } from "react-icons/fa6";
+import { FaBarsStaggered, FaHandshake } from "react-icons/fa6";
 import { PiStudentBold } from "react-icons/pi";
 
 import GetImage from '../components/GetImage';
@@ -92,7 +92,8 @@ const {info,isLoading,isError}= useSelector(state=>state.user)
       icon: MdPreview ,
       links: [
         
-        { name: "Review Clients", path: "/admin/review", icon: Users },
+        { name: "Review Clients", path: "/admin/review", icon: FaHandshake  },
+        { name: "Review User", path: "/admin/review/user", icon: Users },
         // { name: "Teacher", path: "/admin/academy/teachers", icon: FaChalkboardTeacher},
         // { name: "Active Students", path: "/admin/academy/students", icon: PiStudentBold  },
         // { name: "All Leads", path: "/admin/academy/leads", icon: SiGoogleadsense},

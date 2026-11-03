@@ -84,6 +84,7 @@ import AdminCreateLeads from "./pages/admin/AdminCreateLeads"
 import AdminFollowUp from "./pages/admin/AdminFollowUp"
 import GetAllStudents from "./pages/academy/GetAllStudents"
 import ReviewPage from "./pages/admin/ReviewPage"
+import UserReviewPage from "./pages/admin/UserReviewPage"
 function App(): React.JSX.Element {
 
   return (
@@ -169,7 +170,8 @@ transition={Slide}
         </Route> 
 
     <Route path="review"  >
-    <Route  index  element={<ReviewPage />} />
+         <Route  index  element={<ReviewPage />} />
+         <Route  path="user"  element={<UserReviewPage />} />
 
 
     </Route>

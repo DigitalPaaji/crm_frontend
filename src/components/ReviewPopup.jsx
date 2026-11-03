@@ -19,6 +19,7 @@ import {
   FiCheckCircle,
   FiAlertCircle,
 } from "react-icons/fi";
+import { toast } from "react-toastify";
 
 const ReviewPopup = ({ id, setSelected }) => {
   const { token } = useSelector((state) => state.token);
@@ -76,7 +77,7 @@ const ReviewPopup = ({ id, setSelected }) => {
 
       // Replace endpoint with your actual backend route if different.
       const response = await axios.patch(
-        `${review_url}/crm/client/status/${id}`,
+        `${review_url}/crm/review/client/status/${id}`,
         { active: !client.active },
         {
           headers: {
@@ -111,7 +112,7 @@ const ReviewPopup = ({ id, setSelected }) => {
 
       // Replace endpoint with your actual backend route if different.
       const response = await axios.delete(
-        `${review_url}/crm/client/delete/${id}`,
+        `${review_url}/crm/review/delete/${id}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -142,6 +143,31 @@ const ReviewPopup = ({ id, setSelected }) => {
       minute: "2-digit",
     });
   };
+
+const handleDeleteReview= async(reviewId)=>{
+  try {
+    const response = await axios.delete(`${review_url}/crm/review/single/delete/${reviewId}`,{
+       headers: {
+            Authorization: `Bearer ${token}`,
+          },
+    })
+     const data = await response.data;
+     if(data.success){
+       const filterReviews = client.reviews.filter((itm)=>itm._id !== reviewId )
+        setClient(prev=>({...prev,reviews:filterReviews}))
+        toast.success(data.message)
+      }
+      else{
+          toast.error(data.message)
+          
+        }
+        
+      } catch (error) {
+    toast.error(error?.response?.data?.message)
+    
+  }
+}
+
 
   if (loading) {
     return (
@@ -353,51 +379,104 @@ const ReviewPopup = ({ id, setSelected }) => {
                   </span>
                 </div>
 
-                <div className="space-y-3">
-                  {client.reviews?.length > 0 ? (
-                    client.reviews.map((review) => (
-                      <div
-                        key={review._id}
-                        className="rounded-xl border border-gray-200 p-4"
-                      >
-                        <div className="mb-2 flex items-center justify-between gap-2">
-                          <div className="flex items-center gap-1">
-                            {[1, 2, 3, 4, 5].map((star) => (
-                              <FiStar
-                                key={star}
-                                size={15}
-                                className={
-                                  star <= review.rating
-                                    ? "fill-amber-400 text-amber-400"
-                                    : "text-gray-300"
-                                }
-                              />
-                            ))}
+               <div className="space-y-4">
+  {client.reviews?.length > 0 ? (
+    client.reviews.map((review) => (
+      <div
+        key={review._id}
+        className="group rounded-2xl border border-gray-200 bg-white p-4 transition-all duration-200 hover:border-gray-300 hover:shadow-md sm:p-5"
+      >
+        {/* Header */}
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex min-w-0 items-center gap-3">
+            {/* Avatar */}
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-indigo-50 text-lg font-bold uppercase text-indigo-600">
+              {review?.user?.name?.charAt(0) || "U"}
+            </div>
 
-                            <span className="ml-1 text-xs font-semibold text-gray-700">
-                              {review.rating}/5
-                            </span>
-                          </div>
+            {/* Customer details */}
+            <div className="min-w-0">
+              <h4 className="truncate text-sm font-semibold text-gray-900">
+                {review?.user?.name || "Anonymous"}
+              </h4>
 
-                          <span className="text-[11px] text-gray-400">
-                            {formatDate(review.time)}
-                          </span>
-                        </div>
+              <p className="truncate text-xs text-gray-500">
+                {review?.user?.email || "No email"}
+              </p>
 
-                        <p className="text-sm leading-6 text-gray-600">
-                          {review.text}
-                        </p>
-                      </div>
-                    ))
-                  ) : (
-                    <div className="rounded-xl border border-dashed border-gray-300 py-8 text-center">
-                      <FiMessageSquare className="mx-auto mb-2 text-2xl text-gray-300" />
-                      <p className="text-sm text-gray-500">
-                        No reviews available yet.
-                      </p>
-                    </div>
-                  )}
-                </div>
+              <p className="text-xs text-gray-500">
+                {review?.user?.phonenumber || "No phone"}
+              </p>
+            </div>
+          </div>
+
+          {/* Delete button */}
+          <button
+            type="button"
+            onClick={() => {
+              if (window.confirm("Are you sure you want to delete this review?")) {
+                handleDeleteReview(review._id);
+              }
+            }}
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-red-100 bg-red-50 text-red-500 transition hover:border-red-200 hover:bg-red-100 hover:text-red-700"
+            title="Delete review"
+          >
+            <FiTrash2 size={16} />
+          </button>
+        </div>
+
+        {/* Divider */}
+        <div className="my-4 border-t border-gray-100" />
+
+        {/* Rating and date */}
+        <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-0.5">
+              {[1, 2, 3, 4, 5].map((star) => (
+                <FiStar
+                  key={star}
+                  size={16}
+                  className={
+                    star <= review.rating
+                      ? "fill-amber-400 text-amber-400"
+                      : "text-gray-300"
+                  }
+                />
+              ))}
+            </div>
+
+            <span className="rounded-md bg-amber-50 px-2 py-1 text-xs font-bold text-amber-700">
+              {review.rating}/5
+            </span>
+          </div>
+
+          <span className="text-xs text-gray-400">
+            {formatDate(review.time)}
+          </span>
+        </div>
+
+        {/* Review content */}
+        <div className="rounded-xl bg-gray-50 p-3">
+          <p className="whitespace-pre-wrap text-sm leading-6 text-gray-700">
+            {review.text}
+          </p>
+        </div>
+      </div>
+    ))
+  ) : (
+    <div className="rounded-2xl border border-dashed border-gray-300 bg-gray-50 py-12 text-center">
+      <FiMessageSquare className="mx-auto mb-3 text-3xl text-gray-300" />
+
+      <h4 className="text-sm font-semibold text-gray-700">
+        No reviews yet
+      </h4>
+
+      <p className="mt-1 text-xs text-gray-400">
+        Customer reviews will appear here.
+      </p>
+    </div>
+  )}
+</div>
               </section>
             </div>
 
