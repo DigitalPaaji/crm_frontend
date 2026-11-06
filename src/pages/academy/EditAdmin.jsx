@@ -68,6 +68,7 @@ const leadAccess = [
     items: [
       { key: 'Create Lead', value: 'createlead' },
       { key: 'New Lead', value: 'NEW' },
+      { key: 'Interested Lead', value: 'INTERESTED' },
       { key: 'Counseling Lead', value: 'COUNSELING' },
       { key: 'Demo Lead', value: 'DEMO' },
       { key: 'Demo Done Lead', value: 'DEMODONE' },
